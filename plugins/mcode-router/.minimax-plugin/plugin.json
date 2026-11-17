@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "name": "mcode-router",
   "displayName": "mcode-router \u2014 Multi-Agent OODA Router",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Zero-trust multi-agent OODA router for MiniMax Code. Splits work into observe, orient, act and verify stages, picks the lane, model and effort automatically from quota windows and task capability, dispatches across the local agent fleet, and verifies every diff with an off-family reviewer.",
   "author": "UberMetroid",
   "icon": "icon.png",
