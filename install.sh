@@ -192,7 +192,7 @@ cat <<EOF
 mcode-router install complete
   repo        : $REPO_ROOT
   quota       : $QUOTA_FILE (source: $QUOTA_SOURCE)
-  cli         : ~/.local/bin/mcode-router -> bin/mcode-router
+  cli         : ~/.local/bin/mcode-router -> $ROUTER_BIN
   mcode       : $MCODE_DIR
   archived    : ${BACKUP_DIR:-(none displaced)}
 EOF
