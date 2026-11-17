@@ -215,7 +215,7 @@ cat <<EOF
       - custom-command
     customStatusLine:
       command: mcode-router --statusline
-      display: inline
+      display: block
       position: below
       colorMode: ansi
       maxLines: 3

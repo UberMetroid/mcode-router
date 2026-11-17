@@ -46,11 +46,17 @@ func TestStatusLineShowsActiveWorker(t *testing.T) {
 	}
 	text := stripANSI(out.String())
 	for _, want := range []string{
-		"OODA", "muse/muse-ember-1.0/max", "stream", "tok/s", "mcode-act-demo",
+		"### tok/s", "muse/muse-ember-1.0/max", "stream", "mcode-act-demo",
 	} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("status line missing %q:\n%s", want, text)
 		}
+	}
+	if !strings.HasPrefix(strings.TrimSpace(text), "### tok/s") {
+		t.Fatalf("row must start with the worker token rate:\n%s", text)
+	}
+	if strings.Index(text, "muse/muse-ember-1.0/max") < strings.Index(text, "### tok/s") {
+		t.Fatalf("model must follow the token rate:\n%s", text)
 	}
 }
 

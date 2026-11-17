@@ -91,8 +91,9 @@ you want — always pass `cwd` to `ooda_recon`, `ooda_orient` and `ooda_task`.
 ## Live Worker Indicator
 
 `mcode-router --live` prints the model, effort, phase and tokens-per-second of every
-dispatch running right now. The same view can live in the MiniMax Code status bar, next to
-MCode's own model and token quota, by pointing a custom status line at the router:
+dispatch running right now. The same view can live in the MiniMax Code status bar, on its
+own row below MCode's own model and token quota, by pointing a custom status line at the
+router:
 
 ```yaml
 tui:
@@ -107,7 +108,7 @@ tui:
     - custom-command
   customStatusLine:
     command: mcode-router --statusline
-    display: inline
+    display: block
     position: below
     colorMode: ansi
     maxLines: 3
@@ -115,10 +116,13 @@ tui:
     intervalSeconds: 2
 ```
 
-MiniMax Code writes its session context to the command's stdin and renders its stdout:
+MiniMax Code writes its session context to the command's stdin and renders its stdout.
+With `display: block` the worker gets its own row under the status bar, leading with its
+own token rate so it is never confused with MCode's session telemetry:
 
 ```
-/tmp/project │ ✦ M3.1-Flash · Effort max │ Context 512K │ OODA · muse/muse-ember-1.0/max · stream · ~181 tok/s · 24s
+/tmp/project │ ✦ M3.1-Flash · Effort max │ Context 512K
+### tok/s ~181 · muse/muse-ember-1.0/max · stream · 24s
 ```
 
 The router entry is silent while nothing is dispatched, so the bar never adds noise to an
