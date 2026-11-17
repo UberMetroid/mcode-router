@@ -112,7 +112,7 @@ func dispatchManifest(opts CLIOpts, outW, errW io.Writer) int {
 		fmt.Fprintln(errW, err)
 		return 2
 	}
-	root, err := fleet.RepoRoot("")
+	root, err := fleet.RepoRoot(opts.Cwd)
 	if err != nil {
 		fmt.Fprintln(errW, err)
 		return 2
@@ -239,7 +239,7 @@ func RunCLI(prog string, argv []string, outW, errW io.Writer) int {
 		return rc
 	}
 	if opts.Cleanup && opts.Recon == nil && opts.Orient == nil && opts.Task == nil && opts.Review == nil {
-		root, err := fleet.RepoRoot("")
+		root, err := fleet.RepoRoot(opts.Cwd)
 		if err != nil {
 			fmt.Fprintln(errW, err)
 			return 2

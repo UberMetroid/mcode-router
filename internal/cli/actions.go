@@ -14,13 +14,29 @@ import (
 	"github.com/UberMetroid/mcode-router/internal/worktree"
 )
 
-func requireCWD(errW io.Writer) (string, bool) {
-	cwd, err := os.Getwd()
+// ResolveCWD resolves the stage working directory, honouring --cwd and
+// falling back to the process working directory.
+func ResolveCWD(opts CLIOpts, errW io.Writer) (string, bool) {
+	target := strings.TrimSpace(opts.Cwd)
+	if target == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			fmt.Fprintf(errW, "error: resolve working directory: %v\n", err)
+			return "", false
+		}
+		return cwd, true
+	}
+	abs, err := filepath.Abs(target)
 	if err != nil {
-		fmt.Fprintf(errW, "error: resolve working directory: %v\n", err)
+		fmt.Fprintf(errW, "error: invalid --cwd %q: %v\n", target, err)
 		return "", false
 	}
-	return cwd, true
+	info, err := os.Stat(abs)
+	if err != nil || !info.IsDir() {
+		fmt.Fprintf(errW, "error: --cwd is not a directory: %s\n", abs)
+		return "", false
+	}
+	return abs, true
 }
 
 // DoStandaloneReview runs read-only cross-model review against targetArg.
@@ -162,7 +178,7 @@ func DoSingleTask(opts CLIOpts, outW, errW io.Writer) int {
 		fmt.Fprintln(errW, err)
 		return 1
 	}
-	cwd, ok := requireCWD(errW)
+	cwd, ok := ResolveCWD(opts, errW)
 	if !ok {
 		return 1
 	}

@@ -64,11 +64,15 @@ Override per call with `lane`, `model`, `effort`, or `profile`. Pass `complexity
 when the task shape is unusual (`fast`, `tests`, `docs`, `deep`, `architecture`,
 `reasoning`, `audit`, `ember`, `heavy`, `review`).
 
+Always pass `cwd` to `ooda_recon`, `ooda_orient` and `ooda_task`. Without it a
+stage runs in the MCP server's working directory, which is the session start
+folder rather than the project you are working on.
+
 ### Phase 4 — ACT (Max 3 Loops)
 
 #### Mode A — Sequential (1-2 Coupled Files)
-1. Execute the scoped change with `ooda_task`, passing the exact spec and the
-   in-scope `files`.
+1. Execute the scoped change with `ooda_task`, passing `cwd` (the project
+   directory), the exact spec and the in-scope `files`.
 2. Run the repo build/test gate command yourself.
 3. Run an independent read-only cross-model diff review with `ooda_review`.
 

@@ -29,6 +29,7 @@ func mcpStageTools() []mcpTool {
 				"automatically from quota state and the capability regime.",
 			InputSchema: mcpSchema(map[string]any{
 				"prompt":     mcpProp("string", "Specific question. Name exact files or symbols."),
+				"cwd":        mcpProp("string", "Directory to inspect. Defaults to the server working directory."),
 				"lane":       mcpProp("string", "Force a lane. Omit for automatic selection."),
 				"complexity": mcpProp("string", "Capability regime."),
 				"timeout":    mcpProp("string", "Per-task timeout such as 180s or 5m."),
@@ -41,6 +42,7 @@ func mcpStageTools() []mcpTool {
 				"after observe and before acting. Never writes files.",
 			InputSchema: mcpSchema(map[string]any{
 				"prompt":     mcpProp("string", "Question to analyze and plan against."),
+				"cwd":        mcpProp("string", "Directory to analyze. Defaults to the server working directory."),
 				"lane":       mcpProp("string", "Force a lane. Omit for automatic selection."),
 				"complexity": mcpProp("string", "Capability regime."),
 				"timeout":    mcpProp("string", "Per-task timeout such as 600s or 10m."),
@@ -55,6 +57,7 @@ func mcpStageTools() []mcpTool {
 				"acceptance checks, stop conditions.",
 			InputSchema: mcpSchema(map[string]any{
 				"prompt":     mcpProp("string", "Exact build spec with acceptance checks."),
+				"cwd":        mcpProp("string", "Project directory to act in. Defaults to the server working directory."),
 				"files":      mcpProp("string", "Comma-separated paths in scope."),
 				"lane":       mcpProp("string", "Force a lane. Omit for automatic selection."),
 				"complexity": mcpProp("string", "Capability regime."),

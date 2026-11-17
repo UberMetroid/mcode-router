@@ -81,7 +81,11 @@ The MCP server (`mcode-router-mcp`) exposes seven tools, one per concern:
 | `ooda_set_stage` | Pin or reset a stage's lane binding |
 
 Each maps 1:1 to the matching CLI verb, so `lane`, `model`, `effort`, `profile`,
-`complexity`, `files`, `skill` and `timeout` overrides all apply.
+`complexity`, `files`, `skill`, `cwd` and `timeout` overrides all apply.
+
+`cwd` sets the directory the stage runs in. Without it a stage runs in the working
+directory of the process that started the MCP server, which is rarely the project
+you want — always pass `cwd` to `ooda_recon`, `ooda_orient` and `ooda_task`.
 
 ## CLI
 
@@ -91,6 +95,7 @@ mcode-router --usage             # token + cost telemetry per lane
 mcode-router --recon "how does the build work?"
 mcode-router --orient "why does the test fail?"
 mcode-router --task "fix the failing test"
+mcode-router --task "fix the failing test" --cwd /path/to/project
 mcode-router --review            # off-family diff review
 mcode-router --discover          # probe local CLIs for models and effort control
 mcode-router --select            # interactive terminal lane selector

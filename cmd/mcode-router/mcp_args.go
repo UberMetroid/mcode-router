@@ -60,6 +60,7 @@ func mcpStageArgv(verb string, params map[string]any) ([]string, bool) {
 	if verb == "--task" {
 		argv = mcpAddOpt(argv, "--files", mcpStr(params, "files"))
 	}
+	argv = mcpAddOpt(argv, "--cwd", mcpStr(params, "cwd"))
 	argv = mcpAddOpt(argv, "--lane", mcpStr(params, "lane"))
 	argv = mcpAddOpt(argv, "--exclude-lane", mcpStr(params, "exclude_lane"))
 	argv = mcpAddOpt(argv, "--complexity", mcpStr(params, "complexity"))

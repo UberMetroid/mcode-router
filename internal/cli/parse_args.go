@@ -14,7 +14,7 @@ import (
 
 // CLIOpts holds parsed command-line options for the mcode-router CLI.
 type CLIOpts struct {
-	Manifest, Complexity, Lane, Model, Effort, Timeout            string
+	Manifest, Complexity, Lane, Model, Effort, Timeout, Cwd       string
 	Enable, Disable, SetCycle, Reason, SetStage, Profile          string
 	Recon, Orient, Task, Review, Hygiene                          *string
 	Files, Skills, ExcludeLanes                                   []string
@@ -37,7 +37,7 @@ func usageText(prog string) string {
 			"  -v, --version          show binary version and exit\n"+
 			"  -s, --select           interactive arrow-key OODA stage & model selector\n"+
 			"  --recon/--orient PROMPT  read-only Observe recon or Orient architecture analysis\n"+
-			"  --task PROMPT          execute scoped coding task in CWD\n"+
+			"  --task PROMPT          execute scoped coding task in CWD (use --cwd DIR to target a repo)\n"+
 			"  --review [PATH]        standalone read-only cross-model review (default CWD)\n"+
 			"  --hygiene [PATH]       0-token secret, key & hardening footgun scan (default CWD)\n"+
 			"  --files / --skill CSV  scoped paths / skills to inject (repeatable)\n"+
@@ -99,7 +99,7 @@ func applyStrFlag(opts *CLIOpts, name, val string) error {
 		return nil
 	}
 	strMap := map[string]*string{
-		"--model": &opts.Model, "--effort": &opts.Effort, "--timeout": &opts.Timeout,
+		"--model": &opts.Model, "--effort": &opts.Effort, "--timeout": &opts.Timeout, "--cwd": &opts.Cwd,
 		"--complexity": &opts.Complexity, "--enable": &opts.Enable, "--disable": &opts.Disable,
 		"--reason": &opts.Reason, "--set-cycle": &opts.SetCycle,
 		"--set-stage": &opts.SetStage, "--profile": &opts.Profile,
@@ -168,7 +168,7 @@ func consumeFlag(opts *CLIOpts, argv []string, i *int) error {
 		return nil
 	}
 	knownVal := map[string]bool{
-		"--lane": true, "--exclude-lane": true, "--model": true, "--effort": true, "--timeout": true,
+		"--lane": true, "--exclude-lane": true, "--model": true, "--effort": true, "--timeout": true, "--cwd": true,
 		"--recon": true, "--orient": true, "--task": true, "--files": true, "--skill": true, "--skills": true,
 		"--complexity": true, "--jobs": true, "-j": true, "--slots": true, "--enable": true, "--disable": true,
 		"--reason": true, "--hours": true, "--set-cycle": true, "--set-stage": true, "--profile": true,

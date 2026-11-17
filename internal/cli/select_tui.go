@@ -199,7 +199,7 @@ func RunSelectTUI(opts CLIOpts, in io.Reader, outW, errW io.Writer) int {
 	if outW == nil {
 		outW = os.Stdout
 	}
-	cwd, ok := requireCWD(errW)
+	cwd, ok := ResolveCWD(opts, errW)
 	if !ok {
 		return 1
 	}

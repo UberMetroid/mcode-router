@@ -84,7 +84,7 @@ func handleStageFlags(opts CLIOpts, outW, errW io.Writer) (int, bool) {
 	if !opts.ResetStages && opts.SetStage == "" {
 		return 0, false
 	}
-	cwd, ok := requireCWD(errW)
+	cwd, ok := ResolveCWD(opts, errW)
 	if !ok {
 		return 1, true
 	}
@@ -140,7 +140,7 @@ func runReadOnlyStage(stage, prompt string, opts CLIOpts, outW, errW io.Writer) 
 		fmt.Fprintln(errW, err)
 		return 1
 	}
-	cwd, ok := requireCWD(errW)
+	cwd, ok := ResolveCWD(opts, errW)
 	if !ok {
 		return 1
 	}

@@ -136,10 +136,13 @@ func ReportStatus(w io.Writer, refresh bool, cliOpts ...CLIOpts) int {
 			revLbl = "cli default unless overridden"
 		}
 		fmt.Fprintf(w, "Auto-review mcode (%s): %s\n", revLbl, nonEmptyOr(fleet.ResolveCLI("mcode"), "MISSING"))
-		cwd, _ := os.Getwd()
 		var co CLIOpts
 		if len(cliOpts) > 0 {
 			co = cliOpts[0]
+		}
+		cwd, ok := ResolveCWD(co, os.Stderr)
+		if !ok {
+			cwd = "."
 		}
 		printStageMatrix(w, cwd, co, q)
 	}
