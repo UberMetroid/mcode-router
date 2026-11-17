@@ -104,6 +104,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.5]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.5
 [1.0.4]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.4
 [1.0.3]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.3
 [1.0.2]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.2
