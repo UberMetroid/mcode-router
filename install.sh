@@ -198,4 +198,28 @@ mcode-router install complete
 EOF
 [ -z "$MCODE_OUT" ] || printf '%s\n' "$MCODE_OUT" | sed 's/^/  mcode      : /'
 [ -n "$PATH_NOTE" ] && printf '%s\n' "$PATH_NOTE"
+cat <<EOF
+
+  statusline : optional - a live worker indicator in the MiniMax Code status bar.
+               Add this to $MCODE_DIR/config.yaml (tui is merged, not replaced):
+
+  tui:
+    statusLine:
+      - current-dir
+      - session-title
+      - git-branch
+      - model-with-reasoning
+      - context-window
+      - token-quota
+      - context-remaining
+      - custom-command
+    customStatusLine:
+      command: mcode-router --statusline
+      display: inline
+      position: below
+      colorMode: ansi
+      maxLines: 3
+      timeoutMs: 2000
+      intervalSeconds: 2
+EOF
 echo "Next: restart MiniMax Code, then: mcode-router --status && mcode-router --usage"

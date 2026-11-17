@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/UberMetroid/mcode-router/internal/fleet"
-	"github.com/UberMetroid/mcode-router/internal/theme"
+	"github.com/UberMetroid/mcode-router/internal/ui"
 )
 
 func writeExecFile(t *testing.T, dir, name, body string) string {
@@ -122,7 +122,7 @@ func TestStatusUsageAndQuotaAdmin(t *testing.T) {
 	t.Setenv("MCODE_ROUTER_THEME", "light")
 	var out, errB bytes.Buffer
 	if rc := RunSelectTUI(CLIOpts{}, strings.NewReader("b\rBjjjjj\rq"), &out, &errB); rc != 0 ||
-		!strings.Contains(out.String(), theme.PaletteFor("light").TUIHeader) ||
+		!strings.Contains(out.String(), ui.PaletteFor("light").TUIHeader) ||
 		strings.Contains(out.String(), "REPO-LOCAL") || !strings.Contains(out.String(), "✓ Reset all stages to auto") {
 		t.Fatalf("RunSelectTUI b/reset failed rc=%d err=%q", rc, errB.String())
 	}

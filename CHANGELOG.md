@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] — 2026-11-17
+
+### Added
+
+- **MiniMax Code status line indicator.** `mcode-router --statusline` renders the active
+  worker — lane, model, effort, phase and tokens-per-second — as a single status bar
+  entry, so the router's worker traffic is visible next to MCode's own model and token
+  quota instead of being confused with them. MiniMax Code passes its session context on
+  stdin and renders the command's stdout; the indicator stays silent while no dispatch is
+  running. `install.sh` prints the `tui:` block to merge into `~/.minimax/config.yaml`.
+
+### Changed
+
+- The `internal/theme` palette package is now `internal/ui` and owns the terminal
+  surfaces: the ANSI palette and the status line renderer. The live telemetry reader
+  moved there from `internal/cli`.
+
 ## [1.0.3] — 2026-11-17
 
 ### Changed
@@ -78,6 +95,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.4]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.4
 [1.0.3]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.3
 [1.0.2]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.2
 [1.0.1]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.1

@@ -25,7 +25,7 @@ func UsageErr(format string, args ...any) error {
 }
 
 const (
-	Version            = "1.0.3"
+	Version            = "1.0.4"
 	QuotaSchemaVersion = 9
 	CornerWindowSecs   = 5400
 	SoonWakeSecs       = 2700

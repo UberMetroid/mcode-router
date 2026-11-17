@@ -1,5 +1,6 @@
-// Package theme resolves the ANSI 256-color palette used by the terminal UI.
-package theme
+// Package ui renders the router's terminal surfaces: the ANSI palette and the
+// MiniMax Code status line.
+package ui
 
 import (
 	"fmt"

@@ -10,6 +10,7 @@ import (
 	"github.com/UberMetroid/mcode-router/internal/dispatch"
 	"github.com/UberMetroid/mcode-router/internal/envelope"
 	"github.com/UberMetroid/mcode-router/internal/fleet"
+	"github.com/UberMetroid/mcode-router/internal/ui"
 	"github.com/UberMetroid/mcode-router/internal/worktree"
 )
 
@@ -93,7 +94,7 @@ func ReportStatus(w io.Writer, refresh bool, cliOpts ...CLIOpts) int {
 	}
 	co := firstOpts(cliOpts)
 	if co.Live && !co.Status && !co.Discover {
-		printLiveWorkers(w)
+		ui.PrintLiveTelemetry(w)
 		return 0
 	}
 	q, err := fleet.LoadQuota("")
@@ -146,7 +147,7 @@ func ReportStatus(w io.Writer, refresh bool, cliOpts ...CLIOpts) int {
 			cwd = "."
 		}
 		printStageMatrix(w, cwd, co, q)
-		printLiveWorkers(w)
+		ui.PrintLiveTelemetry(w)
 	}
 	printDiscoveryFooter(w, caps, skills, refresh)
 	return 0

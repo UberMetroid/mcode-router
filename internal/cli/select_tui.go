@@ -11,7 +11,7 @@ import (
 
 	"github.com/UberMetroid/mcode-router/internal/envelope"
 	"github.com/UberMetroid/mcode-router/internal/fleet"
-	"github.com/UberMetroid/mcode-router/internal/theme"
+	"github.com/UberMetroid/mcode-router/internal/ui"
 	"github.com/UberMetroid/mcode-router/internal/worktree"
 )
 
@@ -44,7 +44,7 @@ func tuiPick(in io.Reader, out io.Writer, title, hint string, items []string) (i
 		hint = "  " + hint + "\n"
 	}
 	for {
-		pal := theme.ResolvePalette(nil)
+		pal := ui.ResolvePalette(nil)
 		fmt.Fprintf(out, "\033[H\033[2J%s[AGENT-OODA v%s] %s\033[0m\n%s%s\n",
 			pal.TUIHeader, fleet.Version, title, hint, pal.Muted+strings.Repeat("-", 72)+"\033[0m")
 		for i, item := range items {
@@ -224,7 +224,7 @@ func RunSelectTUI(opts CLIOpts, in io.Reader, outW, errW io.Writer) int {
 			hint = "Scope: REPO-LOCAL (" + worktree.WorkspaceStagesPath(cwd) + ")  [Tab: toggle scope]"
 		}
 		if status != "" {
-			pal := theme.ResolvePalette(nil)
+			pal := ui.ResolvePalette(nil)
 			col := pal.TUIOK
 			if strings.HasPrefix(status, "✗") {
 				col = pal.FleetLow

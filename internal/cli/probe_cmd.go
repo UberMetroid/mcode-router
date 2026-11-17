@@ -1,13 +1,10 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
-	"strings"
 	"time"
 
 	"github.com/UberMetroid/mcode-router/internal/dispatch"
@@ -181,74 +178,4 @@ func firstOpts(opts []CLIOpts) CLIOpts {
 		return CLIOpts{}
 	}
 	return opts[0]
-}
-
-// readActiveWorkers loads the live worker markers written by running dispatches.
-func readActiveWorkers() []dispatch.WorkerMarker {
-	dir := filepath.Join(fleet.ScratchDirPath(), "active")
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return nil
-	}
-	var out []dispatch.WorkerMarker
-	for _, ent := range entries {
-		if ent.IsDir() || !strings.HasSuffix(ent.Name(), ".json") {
-			continue
-		}
-		raw, rerr := os.ReadFile(filepath.Join(dir, ent.Name()))
-		if rerr != nil {
-			continue
-		}
-		var m dispatch.WorkerMarker
-		if json.Unmarshal(raw, &m) != nil {
-			continue
-		}
-		out = append(out, m)
-	}
-	sort.Slice(out, func(i, j int) bool { return out[i].StartedAt < out[j].StartedAt })
-	return out
-}
-
-// readLastWorker loads the marker for the most recently completed dispatch.
-func readLastWorker() (dispatch.LastRunMarker, bool) {
-	raw, err := os.ReadFile(filepath.Join(fleet.ScratchDirPath(), "last.json"))
-	if err != nil {
-		return dispatch.LastRunMarker{}, false
-	}
-	var m dispatch.LastRunMarker
-	if json.Unmarshal(raw, &m) != nil {
-		return dispatch.LastRunMarker{}, false
-	}
-	return m, true
-}
-
-// printLiveWorkers renders live dispatch telemetry: active workers and the last run.
-func printLiveWorkers(w io.Writer) {
-	fmt.Fprintln(w, "\nLive Worker Telemetry:")
-	active := readActiveWorkers()
-	if len(active) == 0 {
-		fmt.Fprintln(w, "  (no active workers)")
-	}
-	for _, m := range active {
-		phase := strings.TrimSpace(m.Phase)
-		if phase == "" {
-			phase = "idle"
-		}
-		rate := fmt.Sprintf("%.1f", m.TokS)
-		if !m.TokExact {
-			rate = "~" + rate
-		}
-		elapsed := 0.0
-		if m.StartedAt > 0 {
-			elapsed = time.Since(time.Unix(0, int64(m.StartedAt*1e9))).Seconds()
-		}
-		fmt.Fprintf(w, "  ACTIVE lane=%s cli=%s model=%s effort=%s phase=%s tok/s=%s elapsed=%.1fs\n",
-			m.Lane, m.CLI, dispatch.ShortModel(m.Model), m.Effort, phase, rate, elapsed)
-		fmt.Fprintf(w, "         task=%s cwd=%s skills=%s\n",
-			m.TaskID, m.Cwd, strings.Join(dispatch.VisibleExtraSkills(m.Skills), ","))
-	}
-	if last, ok := readLastWorker(); ok {
-		fmt.Fprintf(w, "  LAST   lane=%s model=%s effort=%s exit=%d duration=%.1fs\n",
-			last.Lane, dispatch.ShortModel(last.Model), last.Effort, last.ExitCode, last.DurationS)
-	}
 }

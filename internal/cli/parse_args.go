@@ -47,7 +47,7 @@ func usageText(prog string) string {
 			"  -j, --jobs, --slots N  max parallel workers for manifest mode (default %d, max %d)\n"+
 			"  --stripe/--no-stripe/--no-pivot/--no-review/--no-cache  stripe opt-in, pivot, verify, cache\n"+
 			"  --status/--discover/--usage/--probe  stage matrix, fleet, CLI cache, telemetry, canary\n"+
-			"  --live                      live worker telemetry (model, effort, phase, tok/s)\n"+
+			"  --live / --statusline    worker telemetry: model, effort, phase, tok/s\n"+
 			"  --set-stage S=L / --reset-stages  pin stage (or preset=NAME); modifiers: --local, --until-reset\n"+
 			"  --enable/--disable/--set-cycle P  quota/cycle admin (--auto-wake, --reason, --hours,\n"+
 			"                         --token-budget, --cost-budget, --max-parallel, --reset-now)\n"+

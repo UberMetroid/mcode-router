@@ -7,6 +7,7 @@ import (
 
 	"github.com/UberMetroid/mcode-router/internal/cli"
 	"github.com/UberMetroid/mcode-router/internal/install"
+	"github.com/UberMetroid/mcode-router/internal/ui"
 )
 
 func dispatchSubcommand(prog string, args []string) int {
@@ -16,6 +17,8 @@ func dispatchSubcommand(prog string, args []string) int {
 	}
 	if len(args) > 0 {
 		switch args[0] {
+		case "--statusline":
+			return ui.StatusLine(os.Stdin, os.Stdout)
 		case "__mcode":
 			return install.RunMCodeCmd(args[1:], os.Stdout, os.Stderr)
 		case "__setup":

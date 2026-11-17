@@ -88,6 +88,43 @@ Each maps 1:1 to the matching CLI verb, so `lane`, `model`, `effort`, `profile`,
 directory of the process that started the MCP server, which is rarely the project
 you want — always pass `cwd` to `ooda_recon`, `ooda_orient` and `ooda_task`.
 
+## Live Worker Indicator
+
+`mcode-router --live` prints the model, effort, phase and tokens-per-second of every
+dispatch running right now. The same view can live in the MiniMax Code status bar, next to
+MCode's own model and token quota, by pointing a custom status line at the router:
+
+```yaml
+tui:
+  statusLine:
+    - current-dir
+    - session-title
+    - git-branch
+    - model-with-reasoning
+    - context-window
+    - token-quota
+    - context-remaining
+    - custom-command
+  customStatusLine:
+    command: mcode-router --statusline
+    display: inline
+    position: below
+    colorMode: ansi
+    maxLines: 3
+    timeoutMs: 2000
+    intervalSeconds: 2
+```
+
+MiniMax Code writes its session context to the command's stdin and renders its stdout:
+
+```
+/tmp/project │ ✦ M3.1-Flash · Effort max │ Context 512K │ OODA · muse/muse-ember-1.0/max · stream · ~181 tok/s · 24s
+```
+
+The router entry is silent while nothing is dispatched, so the bar never adds noise to an
+idle session. The `tui:` block is merged into `~/.minimax/config.yaml`; `install.sh` prints
+the snippet on every run.
+
 ## CLI
 
 ```bash
