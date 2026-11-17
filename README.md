@@ -68,7 +68,7 @@ when a pay-as-you-go API key is active. MiniMax Code is the only supported host.
 
 ## MCP Tools
 
-The MCP server (`mcode-router-mcp`) exposes seven tools, one per concern:
+The MCP server (`mcode-router-mcp`) exposes eight tools, one per concern:
 
 | Tool | Purpose |
 |---|---|
@@ -78,6 +78,7 @@ The MCP server (`mcode-router-mcp`) exposes seven tools, one per concern:
 | `ooda_review` | Verify stage — off-family diff review |
 | `ooda_status` | Live fleet table: lane, tier, model, reset windows |
 | `ooda_usage` | Token and cost telemetry per lane |
+| `ooda_live` | Live worker telemetry: model, effort, phase, tok/s of running dispatches |
 | `ooda_set_stage` | Pin or reset a stage's lane binding |
 
 Each maps 1:1 to the matching CLI verb, so `lane`, `model`, `effort`, `profile`,
@@ -92,6 +93,7 @@ you want — always pass `cwd` to `ooda_recon`, `ooda_orient` and `ooda_task`.
 ```bash
 mcode-router --status            # live fleet table with quota windows
 mcode-router --usage             # token + cost telemetry per lane
+mcode-router --live              # model, effort, phase and tok/s of running dispatches
 mcode-router --recon "how does the build work?"
 mcode-router --orient "why does the test fail?"
 mcode-router --task "fix the failing test"

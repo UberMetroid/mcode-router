@@ -8,8 +8,8 @@ import (
 
 func TestToolCatalogShape(t *testing.T) {
 	specs := mcpToolSpecs()
-	if len(specs) != 7 {
-		t.Fatalf("expected 7 tools, got %d", len(specs))
+	if len(specs) != 8 {
+		t.Fatalf("expected 8 tools, got %d", len(specs))
 	}
 	seen := map[string]bool{}
 	for _, spec := range specs {
@@ -30,7 +30,7 @@ func TestToolCatalogShape(t *testing.T) {
 			t.Fatalf("%s schema missing properties", spec.Name)
 		}
 	}
-	for _, want := range []string{"ooda_recon", "ooda_orient", "ooda_task", "ooda_review"} {
+	for _, want := range []string{"ooda_recon", "ooda_orient", "ooda_task", "ooda_review", "ooda_live"} {
 		if !seen[want] {
 			t.Fatalf("missing stage tool %q", want)
 		}

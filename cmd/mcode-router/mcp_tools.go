@@ -108,6 +108,13 @@ func mcpAdminTools() []mcpTool {
 			InputSchema: mcpSchema(map[string]any{}, []string{}),
 		},
 		{
+			Name: "ooda_live",
+			Description: "Live worker telemetry: the lane, CLI, model, effort, phase and " +
+				"tokens-per-second of every dispatch running right now, plus the last " +
+				"completed run. Use to watch a task in flight.",
+			InputSchema: mcpSchema(map[string]any{}, []string{}),
+		},
+		{
 			Name: "ooda_set_stage",
 			Description: "Pin an OODA stage to a lane, or reset a pin, so routing becomes " +
 				"deterministic for a repository or globally. Stages are observe, orient, " +
@@ -148,6 +155,8 @@ func mcpRunTool(name string, params map[string]any) (string, bool) {
 		return mcpExec([]string{"--status"})
 	case "ooda_usage":
 		return mcpExec([]string{"--usage"})
+	case "ooda_live":
+		return mcpExec([]string{"--live"})
 	case "ooda_set_stage":
 		return mcpSetStage(params)
 	}

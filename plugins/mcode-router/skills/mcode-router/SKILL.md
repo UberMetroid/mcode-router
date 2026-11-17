@@ -152,8 +152,9 @@ always excludes the authoring model family, even if pinned identically.
 | VERIFY: off-family diff review | `ooda_review` |
 | Fleet status, stage matrix, models | `ooda_status` |
 | Per-lane token and cost telemetry | `ooda_usage` |
+| Live worker telemetry (model, effort, phase, tok/s) | `ooda_live` |
 | Pin or reset a stage lane | `ooda_set_stage` |
 
 The same verbs exist as CLI flags for scripted and parallel use:
 `mcode-router --recon`, `--orient`, `--task`, `--review`, `--status`, `--usage`,
-`--set-stage`, `--select`, `--discover`, `--probe`, `--hygiene`, `--cleanup`.
+`--live`, `--set-stage`, `--select`, `--discover`, `--probe`, `--hygiene`, `--cleanup`.

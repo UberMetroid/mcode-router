@@ -23,7 +23,7 @@ type CLIOpts struct {
 	TokenBudget, MaxParallel                                      *int
 	LaneSet, Stripe, NoStripe, NoPivot, NoReview, NoCache, Status bool
 	Discover, Usage, Probe, AutoWake, ResetNow, Select, Local     bool
-	ResetStages, UntilReset, Cleanup, Help, Version               bool
+	ResetStages, UntilReset, Cleanup, Help, Version, Live         bool
 }
 
 func usageText(prog string) string {
@@ -32,8 +32,7 @@ func usageText(prog string) string {
 			"             --recon P | --orient P | --task P | --review [PATH] | --hygiene [PATH] |\n"+
 			"             --cleanup | --set-stage S=L | --reset-stages | --enable P | --disable P |\n"+
 			"             --set-cycle P | manifest]\n\n"+
-			"options:\n"+
-			"  -h, --help             show this help message and exit\n"+
+			"options:\n  -h, --help             show this help message and exit\n"+
 			"  -v, --version          show binary version and exit\n"+
 			"  -s, --select           interactive arrow-key OODA stage & model selector\n"+
 			"  --recon/--orient PROMPT  read-only Observe recon or Orient architecture analysis\n"+
@@ -48,6 +47,7 @@ func usageText(prog string) string {
 			"  -j, --jobs, --slots N  max parallel workers for manifest mode (default %d, max %d)\n"+
 			"  --stripe/--no-stripe/--no-pivot/--no-review/--no-cache  stripe opt-in, pivot, verify, cache\n"+
 			"  --status/--discover/--usage/--probe  stage matrix, fleet, CLI cache, telemetry, canary\n"+
+			"  --live                      live worker telemetry (model, effort, phase, tok/s)\n"+
 			"  --set-stage S=L / --reset-stages  pin stage (or preset=NAME); modifiers: --local, --until-reset\n"+
 			"  --enable/--disable/--set-cycle P  quota/cycle admin (--auto-wake, --reason, --hours,\n"+
 			"                         --token-budget, --cost-budget, --max-parallel, --reset-now)\n"+
@@ -101,8 +101,7 @@ func applyStrFlag(opts *CLIOpts, name, val string) error {
 	strMap := map[string]*string{
 		"--model": &opts.Model, "--effort": &opts.Effort, "--timeout": &opts.Timeout, "--cwd": &opts.Cwd,
 		"--complexity": &opts.Complexity, "--enable": &opts.Enable, "--disable": &opts.Disable,
-		"--reason": &opts.Reason, "--set-cycle": &opts.SetCycle,
-		"--set-stage": &opts.SetStage, "--profile": &opts.Profile,
+		"--reason": &opts.Reason, "--set-cycle": &opts.SetCycle, "--set-stage": &opts.SetStage, "--profile": &opts.Profile,
 	}
 	if p, ok := strMap[name]; ok {
 		*p = val
@@ -135,6 +134,7 @@ func applyBoolFlag(opts *CLIOpts, name string) bool {
 		"--cleanup": &opts.Cleanup, "-s": &opts.Select, "--select": &opts.Select, "--no-cache": &opts.NoCache,
 		"--reset-stages": &opts.ResetStages, "--local": &opts.Local, "--until-reset": &opts.UntilReset,
 		"-v": &opts.Version, "--version": &opts.Version, "-h": &opts.Help, "--help": &opts.Help,
+		"--live": &opts.Live,
 	}
 	ptr, ok := m[name]
 	if ok {
@@ -200,7 +200,7 @@ func validateModes(opts CLIOpts) error {
 	for _, on := range []bool{
 		opts.Version, opts.Select, opts.Status, opts.Discover, opts.Usage, opts.Probe,
 		quotaAdmin, stageAdmin, opts.Cleanup, opts.Recon != nil, opts.Orient != nil,
-		opts.Task != nil, opts.Review != nil, opts.Hygiene != nil,
+		opts.Task != nil, opts.Review != nil, opts.Hygiene != nil, opts.Live,
 	} {
 		if on {
 			modes++

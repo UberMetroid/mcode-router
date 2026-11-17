@@ -91,6 +91,11 @@ func ReportStatus(w io.Writer, refresh bool, cliOpts ...CLIOpts) int {
 	if w == nil {
 		w = os.Stdout
 	}
+	co := firstOpts(cliOpts)
+	if co.Live && !co.Status && !co.Discover {
+		printLiveWorkers(w)
+		return 0
+	}
 	q, err := fleet.LoadQuota("")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -136,15 +141,12 @@ func ReportStatus(w io.Writer, refresh bool, cliOpts ...CLIOpts) int {
 			revLbl = "cli default unless overridden"
 		}
 		fmt.Fprintf(w, "Auto-review mcode (%s): %s\n", revLbl, nonEmptyOr(fleet.ResolveCLI("mcode"), "MISSING"))
-		var co CLIOpts
-		if len(cliOpts) > 0 {
-			co = cliOpts[0]
-		}
 		cwd, ok := ResolveCWD(co, os.Stderr)
 		if !ok {
 			cwd = "."
 		}
 		printStageMatrix(w, cwd, co, q)
+		printLiveWorkers(w)
 	}
 	printDiscoveryFooter(w, caps, skills, refresh)
 	return 0

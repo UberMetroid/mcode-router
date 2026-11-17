@@ -4,6 +4,22 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] — 2026-11-17
+
+### Added
+
+- **Live worker telemetry.** The dispatch layer already recorded the model, effort, phase
+  and tokens-per-second of every running worker, but nothing rendered it after the HUD was
+  removed with the agy split. `mcode-router --live` now prints the active workers and the
+  last completed run, and the new `ooda_live` MCP tool exposes the same view inside MiniMax
+  Code. The `--status` output also carries a compact live section, which the
+  `UserPromptSubmit` context hook surfaces on every prompt.
+
+### Changed
+
+- The MCP server now advertises eight tools; the README, landing page and the
+  `mcode-router` skill list `ooda_live`.
+
 ## [1.0.1] — 2026-11-17
 
 ### Added
@@ -52,5 +68,6 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.2]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.2
 [1.0.1]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.1
 [1.0.0]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.0
