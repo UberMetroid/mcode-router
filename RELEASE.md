@@ -10,6 +10,11 @@ three aligned with a single command.
       `## [X.Y.Z] — YYYY-MM-DD` heading if it is missing, but the prose is yours.
 - [ ] Confirm the working tree is clean: `git status --short`.
 
+> **Note.** Keep the prose and the version bump in **one commit**. CI runs
+> `make release-check` on every push, and it fails when the changelog names a
+> release that the CLI and the manifest do not carry. A commit that adds the
+> prose for the next version without the matching bump is therefore a red build.
+
 ## 2. Bump the version — one command
 
 ```sh
@@ -36,6 +41,10 @@ make release-check
 
 Prints the version found in each file and exits non-zero when they disagree. The
 `make dogfood` gate cross-checks `--version` against the plugin manifest as well.
+
+CI runs this check on every push to `main` and every pull request, and the release
+workflow runs it before it publishes — a tag whose version strings disagree never
+reaches a download.
 
 ## 4. Run the gates
 
