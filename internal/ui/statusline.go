@@ -110,7 +110,7 @@ func PrintLiveTelemetry(w io.Writer) {
 // StatusLine renders the MiniMax Code status bar entry for active router workers.
 // It stays silent while no dispatch is running so the bar shows nothing extra.
 func StatusLine(r io.Reader, w io.Writer) int {
-	ctx := ReadStatusContext(r)
+	_ = ReadStatusContext(r)
 	active := ReadActiveWorkers()
 	if len(active) == 0 {
 		return 0
@@ -118,20 +118,17 @@ func StatusLine(r io.Reader, w io.Writer) int {
 	pal := ResolvePalette(nil)
 	now := time.Now()
 	for _, m := range active {
-		fmt.Fprintln(w, FormatWorkerLine(pal, m, now, ctx))
+		fmt.Fprintln(w, FormatWorkerLine(pal, m, now))
 	}
 	return 0
 }
 
 // FormatWorkerLine renders one active worker as a status line row.
-// The row leads with the worker token rate so it is never confused with
-// MiniMax Code's own session telemetry, then names the worker model. The rate
-// is coloured by throughput, from muted while idle to bright when fast.
-func FormatWorkerLine(pal Palette, m dispatch.WorkerMarker, now time.Time, ctx StatusContext) string {
-	effort := strings.TrimSpace(m.Effort)
-	if effort == "" {
-		effort = "default"
-	}
+// The row carries the worker token rate and the worker model, nothing else:
+// the rate leads so it is never confused with MiniMax Code's own session
+// telemetry, and it is coloured by throughput, from muted while idle to
+// bright when fast.
+func FormatWorkerLine(pal Palette, m dispatch.WorkerMarker, now time.Time) string {
 	meta := readWorkerMeta(m, now)
 	rate := fmt.Sprintf("%.0f", meta.rate)
 	if !meta.exact {
@@ -139,18 +136,7 @@ func FormatWorkerLine(pal Palette, m dispatch.WorkerMarker, now time.Time, ctx S
 	}
 	parts := []string{
 		rateColor(pal, meta.rate) + rateBolt + " " + rate + " tok/s" + ansiReset,
-		pal.TUIAccent + m.Lane + ansiReset + "/" + dispatch.ShortModel(m.Model) + "/" + effort,
-		meta.phase,
-		fmt.Sprintf("%.0fs", meta.elapsed),
-	}
-	target := m.Cwd
-	if target == "" {
-		target = ctx.WorkspaceDir
-	}
-	if base := filepath.Base(target); target != "" && base != "." && base != string(filepath.Separator) {
-		if base != filepath.Base(ctx.WorkspaceDir) {
-			parts = append(parts, pal.Muted+base+ansiReset)
-		}
+		pal.TUIAccent + dispatch.ShortModel(m.Model) + ansiReset,
 	}
 	return strings.Join(parts, " · ")
 }

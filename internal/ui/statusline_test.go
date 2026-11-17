@@ -45,9 +45,7 @@ func TestStatusLineShowsActiveWorker(t *testing.T) {
 		t.Fatalf("status line exited %d", code)
 	}
 	text := stripANSI(out.String())
-	for _, want := range []string{
-		"tok/s", "muse/muse-ember-1.0/max", "stream", "mcode-act-demo",
-	} {
+	for _, want := range []string{"tok/s", "muse-ember-1.0"} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("status line missing %q:\n%s", want, text)
 		}
@@ -55,29 +53,28 @@ func TestStatusLineShowsActiveWorker(t *testing.T) {
 	if !strings.HasPrefix(strings.TrimSpace(text), "\u26a1 ~181 tok/s") {
 		t.Fatalf("row must start with the worker token rate:\n%s", text)
 	}
-	if strings.Index(text, "muse/muse-ember-1.0/max") < strings.Index(text, "\u26a1 ~181 tok/s") {
+	if strings.Index(text, "muse-ember-1.0") < strings.Index(text, "\u26a1 ~181 tok/s") {
 		t.Fatalf("model must follow the token rate:\n%s", text)
 	}
 }
 
-// TestRateColorBrightens checks that a faster worker gets a brighter colour
-// and that an idle worker stays in the theme's muted tone.
+// TestRateColorBrightens checks that a faster worker gets a brighter colour,
+// that every ramp step is distinct, and that an idle worker stays muted.
 func TestRateColorBrightens(t *testing.T) {
 	pal := Palette{Muted: "\033[38;5;244m"}
 	if got := rateColor(pal, 0); got != pal.Muted {
 		t.Fatalf("idle worker should stay muted, got %q", got)
 	}
-	low, high := rateColor(pal, 10), rateColor(pal, 200)
-	if low == high {
-		t.Fatalf("rate colour does not brighten with throughput: %q", low)
+	prev := ""
+	for _, r := range []float64{1, 20, 50, 100, 200, 400, 600, 900} {
+		c := rateColor(pal, r)
+		if c == prev {
+			t.Fatalf("rate %v reuses the previous colour %q", r, c)
+		}
+		prev = c
 	}
-	if rateColor(pal, 200) != rateRamp[3] {
-		t.Fatalf("fast worker should use the brightest ramp colour")
-	}
-	if strings.Contains(FormatWorkerLine(pal, dispatch.WorkerMarker{Lane: "muse", Model: "m",
-		Phase: "stream", TokS: 5, StartedAt: float64(time.Now().UnixNano()) / 1e9}, time.Now(),
-		StatusContext{}), "-0s") {
-		t.Fatalf("elapsed must never render as negative zero")
+	if rateColor(pal, 900) != rateRamp[len(rateRamp)-1] {
+		t.Fatalf("fastest worker should use the brightest ramp colour")
 	}
 }
 
@@ -107,26 +104,21 @@ func TestStatusLineSilentWhenIdle(t *testing.T) {
 	}
 }
 
-// TestFormatWorkerLineProjectLabel checks that the project segment is dropped
-// when the worker already runs inside the session workspace.
-func TestFormatWorkerLineProjectLabel(t *testing.T) {
+// TestFormatWorkerLineIsMinimal checks that the row carries only the rate and
+// the model, with no lane, project, phase or elapsed noise.
+func TestFormatWorkerLineIsMinimal(t *testing.T) {
 	m := dispatch.WorkerMarker{
-		TaskID: "task", Lane: "muse", CLI: "muse", Model: "muse-ember-1.0",
-		Effort: "max", Phase: "stream", Cwd: "/tmp/demo",
+		TaskID: "task", Lane: "devin-fast", CLI: "devin", Model: "swe-2-flash-max",
+		Effort: "xhigh", Phase: "stream", TokS: 120, Cwd: "/tmp/demo",
 	}
-	now := time.Now()
-	same := stripANSI(FormatWorkerLine(Palette{}, m, now,
-		StatusContext{WorkspaceDir: "/tmp/demo"}))
-	if strings.Contains(same, "demo") {
-		t.Fatalf("expected project label to be dropped, got %q", same)
+	line := stripANSI(FormatWorkerLine(Palette{}, m, time.Now()))
+	if line != "\u26a1 ~120 tok/s · swe-2-flash-max" {
+		t.Fatalf("row should be the rate and model only, got %q", line)
 	}
-	if !strings.Contains(same, "muse/muse-ember-1.0/max") {
-		t.Fatalf("worker lane/model missing: %q", same)
-	}
-	other := stripANSI(FormatWorkerLine(Palette{}, m, now,
-		StatusContext{WorkspaceDir: "/tmp/session"}))
-	if !strings.Contains(other, "demo") {
-		t.Fatalf("expected foreign project label, got %q", other)
+	for _, noise := range []string{"devin-fast", "demo", "stream", "xhigh"} {
+		if strings.Contains(line, noise) {
+			t.Fatalf("row should not mention %q: %q", noise, line)
+		}
 	}
 }
 
