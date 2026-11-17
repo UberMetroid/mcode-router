@@ -146,7 +146,9 @@ func FormatWorkerLine(pal Palette, m dispatch.WorkerMarker, now time.Time, ctx S
 		target = ctx.WorkspaceDir
 	}
 	if base := filepath.Base(target); target != "" && base != "." && base != string(filepath.Separator) {
-		parts = append(parts, pal.Muted+base+ansiReset)
+		if base != filepath.Base(ctx.WorkspaceDir) {
+			parts = append(parts, pal.Muted+base+ansiReset)
+		}
 	}
 	return strings.Join(parts, " · ")
 }

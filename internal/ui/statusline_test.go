@@ -80,6 +80,29 @@ func TestStatusLineSilentWhenIdle(t *testing.T) {
 	}
 }
 
+// TestFormatWorkerLineProjectLabel checks that the project segment is dropped
+// when the worker already runs inside the session workspace.
+func TestFormatWorkerLineProjectLabel(t *testing.T) {
+	m := dispatch.WorkerMarker{
+		TaskID: "task", Lane: "muse", CLI: "muse", Model: "muse-ember-1.0",
+		Effort: "max", Phase: "stream", Cwd: "/tmp/demo",
+	}
+	now := time.Now()
+	same := stripANSI(FormatWorkerLine(Palette{}, m, now,
+		StatusContext{WorkspaceDir: "/tmp/demo"}))
+	if strings.Contains(same, "demo") {
+		t.Fatalf("expected project label to be dropped, got %q", same)
+	}
+	if !strings.Contains(same, "muse/muse-ember-1.0/max") {
+		t.Fatalf("worker lane/model missing: %q", same)
+	}
+	other := stripANSI(FormatWorkerLine(Palette{}, m, now,
+		StatusContext{WorkspaceDir: "/tmp/session"}))
+	if !strings.Contains(other, "demo") {
+		t.Fatalf("expected foreign project label, got %q", other)
+	}
+}
+
 func TestReadStatusContextParses(t *testing.T) {
 	payload := `{"protocol":1,"event":"interval","model":"M3.1-Flash","workspace_dir":"/tmp/x"}`
 	ctx := ReadStatusContext(strings.NewReader(payload))

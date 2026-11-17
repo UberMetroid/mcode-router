@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] — 2026-11-17
+
+### Changed
+
+- **The status line no longer repeats the project name.** The worker segment used to be
+  labelled with the project basename even when the worker was running inside the session's
+  own workspace, where MiniMax Code already shows the directory in its status bar. The
+  label is now only added when the worker targets a different project than the session.
+
 ## [1.0.4] — 2026-11-17
 
 ### Added
