@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] — 2026-11-17
+
+### Added
+
+- **Version drift fails CI.** `make release-check` now runs on every push to
+  `main` and on every pull request. It compares the CLI version constant, the
+  plugin manifest version and the changelog release link, and fails the build
+  when they disagree — the drift that shipped the v1.0.5 tag with a binary
+  still reporting v1.0.4.
+
+### Changed
+
+- The release workflow runs the same check before it cross-compiles and
+  publishes, so a tag whose version strings disagree never reaches a download.
+- `RELEASE.md` now requires the changelog prose and the version bump to land in
+  one commit, because a commit that names an unreleased version is a red build.
+
 ## [1.0.6] — 2026-11-17
 
 ### Added
@@ -121,6 +138,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.7]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.7
 [1.0.6]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.6
 [1.0.5]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.5
 [1.0.4]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.4
