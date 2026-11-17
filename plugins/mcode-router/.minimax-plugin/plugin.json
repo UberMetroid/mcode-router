@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "name": "mcode-router",
+  "displayName": "mcode-router \u2014 Multi-Agent OODA Router",
+  "version": "1.0.0",
+  "description": "Zero-trust multi-agent OODA router for MiniMax Code. Splits work into observe, orient, act and verify stages, picks the lane, model and effort automatically from quota windows and task capability, dispatches across the local agent fleet, and verifies every diff with an off-family reviewer.",
+  "author": "UberMetroid",
+  "icon": "icon.png",
+  "category": "Code",
+  "exampleQueries": [
+    "Run the OODA loop on this repo and fix the failing test",
+    "Recon this repository and tell me how it builds",
+    "Show which model each OODA stage would use right now"
+  ],
+  "apps": [],
+  "mcpServers": [
+    "mcode-router.mcp.json"
+  ],
+  "skills": [
+    "skills/mcode-router/SKILL.md",
+    "skills/lane/SKILL.md",
+    "skills/harden/SKILL.md"
+  ],
+  "agents": [
+    "agents/ooda-auto.md",
+    "agents/ooda-conserve.md",
+    "agents/ooda-deep.md",
+    "agents/ooda-devin.md",
+    "agents/ooda-grok.md",
+    "agents/ooda-mcode.md",
+    "agents/ooda-mistral.md",
+    "agents/ooda-muse.md"
+  ]
+}

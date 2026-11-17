@@ -1,0 +1,13 @@
+/bin/mcode-router
+__pycache__/
+*.py[cod]
+*$py.class
+.worktrees/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.tmp
+*.bak
+*.swp
+quota.json
+mismatch.json

@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mcode-router &mdash; Static Go OODA Multi-Agent Router &amp; MCP Server for MiniMax Code</title>
+  <meta name="description" content="Zero-dependency static Go 1.22+ OODA router and MCP server for MiniMax Code.">
+  <meta property="og:title" content="mcode-router &mdash; Static Go OODA Multi-Agent Router &amp; MCP Server">
+  <meta property="og:description" content="Static Go OODA router: quota-aware 7 lanes, off-family verify, 7-tool MCP server.">
+  <meta property="og:url" content="https://ubermetroid.github.io/mcode-router/">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://ubermetroid.github.io/mcode-router/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
+    viewBox='0 0 128 128' fill='none'%3E
+    %3Crect width='128' height='128' rx='24' fill='%230d1117'/%3E
+    %3Ccircle cx='64' cy='64' r='42' stroke='%2330363d' stroke-width='4' stroke-dasharray='10 8'/%3E
+    %3Cpath d='M64 22 A42 42 0 0 1 106 64' stroke='%2339d0d8' stroke-width='6' stroke-linecap='round'/%3E
+    %3Cpath d='M106 64 A42 42 0 0 1 64 106' stroke='%23f0b429' stroke-width='6' stroke-linecap='round'/%3E
+    %3Cpath d='M64 106 A42 42 0 0 1 22 64' stroke='%233fb950' stroke-width='6' stroke-linecap='round'/%3E
+    %3Cpath d='M22 64 A42 42 0 0 1 64 22' stroke='%23d2a8ff' stroke-width='6' stroke-linecap='round'/%3E
+    %3Cpolygon points='64,34 86,84 64,73 42,84' fill='%23e6edf3'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap">
+  <style>
+    :root {
+      --bg: #070a0f;
+      --surface: #0d131b;
+      --surface-alt: #111924;
+      --border: #1d2938;
+      --border-hi: #2b3e54;
+      --text: #e6edf5;
+      --muted: #8ea0b5;
+      --dim: #5d7087;
+      --green: #3fb950;
+      --cyan: #39d0d8;
+      --amber: #f0b429;
+      --violet: #d2a8ff;
+      --red: #ff5555;
+      --serif: "DM Serif Display", Georgia, serif;
+      --sans: "Outfit", system-ui, "Adwaita Sans", Cantarell, "Noto Sans", sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, "Adwaita Mono", "DejaVu Sans Mono", monospace;
+      --radius: 12px;
+      --maxw: 1120px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(900px 420px at 14% -8%, rgba(57, 208, 216, 0.08), transparent 60%),
+        radial-gradient(760px 400px at 88% 4%, rgba(63, 185, 80, 0.08), transparent 60%),
+        radial-gradient(640px 380px at 52% 45%, rgba(210, 168, 255, 0.04), transparent 65%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: var(--mono); }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+      background: rgba(7, 10, 15, 0.86);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 60px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 0.86rem;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .brand:hover { text-decoration: none; }
+    .brand svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .nav a {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    .nav a:hover { color: var(--text); text-decoration: none; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 500;
+      border: 1px solid var(--border-hi);
+      background: var(--surface-alt);
+      color: var(--text);
+      transition: border-color 140ms ease, transform 140ms ease;
+    }
+    .btn:hover { border-color: var(--cyan); text-decoration: none; transform: translateY(-1px); }
+    .btn-primary {
+      background: rgba(63, 185, 80, 0.14);
+      border-color: rgba(63, 185, 80, 0.55);
+      color: var(--green);
+    }
+    .btn-primary:hover { border-color: var(--green); }
+
+    .hero {
+      padding: 68px 0 44px;
+      border-bottom: 1px solid var(--border);
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border: 1px solid var(--border-hi);
+      border-radius: 999px;
+      background: var(--surface);
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      color: var(--cyan);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.5rem, 5vw, 3.9rem);
+      line-height: 1.08;
+      font-weight: 400;
+      margin: 18px 0 14px;
+      letter-spacing: -0.01em;
+    }
+    h1 span { color: var(--green); }
+    .lead {
+      max-width: 760px;
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin: 0 0 28px;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .install-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      margin-bottom: 24px;
+      background: #05080c;
+      border: 1px solid rgba(63, 185, 80, 0.45);
+      border-radius: var(--radius);
+      font-family: var(--mono);
+      font-size: 0.84rem;
+    }
+    .install-bar code {
+      color: var(--text);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .copy-btn { cursor: pointer; }
+    .telemetry-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .stat-k {
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .stat-v {
+      font-family: var(--mono);
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 4px;
+    }
+    .stat-v.green { color: var(--green); }
+    .stat-v.cyan { color: var(--cyan); }
+    .stat-v.amber { color: var(--amber); }
+    .stat-v.violet { color: var(--violet); }
+
+    section {
+      padding: 52px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-family: var(--serif);
+      font-size: clamp(1.65rem, 3vw, 2.2rem);
+      font-weight: 400;
+      margin: 0;
+      line-height: 1.2;
+    }
+    .sec-tag {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--cyan);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    p.sec-sub {
+      color: var(--muted);
+      margin: 0 0 24px;
+      max-width: 790px;
+    }
+
+    .terminal {
+      background: #05080c;
+      border: 1px solid var(--border-hi);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+    .term-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .term-ws {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--cyan);
+      letter-spacing: 0.06em;
+    }
+    .terminal pre.codeblock {
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .c-green { color: var(--green); }
+    .c-cyan { color: var(--cyan); }
+    .c-amber { color: var(--amber); }
+    .c-violet { color: var(--violet); }
+    .c-red { color: var(--red); }
+    .c-muted { color: var(--muted); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .card p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+    .badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-hi);
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+    }
+    .b-green { color: var(--green); border-color: rgba(63, 185, 80, 0.45); background: rgba(63, 185, 80, 0.08); }
+    .b-cyan { color: var(--cyan); border-color: rgba(57, 208, 216, 0.45); background: rgba(57, 208, 216, 0.08); }
+    .b-amber { color: var(--amber); border-color: rgba(240, 180, 41, 0.45); background: rgba(240, 180, 41, 0.08); }
+    .b-violet { color: var(--violet); border-color: rgba(210, 168, 255, 0.45); background: rgba(210, 168, 255, 0.08); }
+    .b-red { color: var(--red); border-color: rgba(255, 85, 85, 0.45); background: rgba(255, 85, 85, 0.08); }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      min-width: 680px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--dim);
+      background: var(--surface-alt);
+    }
+    tr:last-child td { border-bottom: none; }
+    td code {
+      font-size: 0.84rem;
+      color: var(--cyan);
+      background: rgba(57, 208, 216, 0.07);
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+
+    pre.codeblock {
+      margin: 0;
+      padding: 18px 20px;
+      background: #05080c;
+      border: 1px solid var(--border-hi);
+      border-radius: var(--radius);
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .pill {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+    }
+
+    footer {
+      padding: 36px 0 48px;
+      color: var(--dim);
+      font-size: 0.88rem;
+    }
+    .foot-inner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+    }
+
+    @media (max-width: 640px) {
+      .nav { display: none; }
+      .install-bar code { font-size: 0.76rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#top">
+        <svg viewBox="0 0 128 128" fill="none" aria-hidden="true">
+          <rect width="128" height="128" rx="24" fill="#0d1117"/>
+          <circle cx="64" cy="64" r="42" stroke="#30363d" stroke-width="5" stroke-dasharray="10 8"/>
+          <path d="M64 22 A42 42 0 0 1 106 64" stroke="#39d0d8" stroke-width="7" stroke-linecap="round"/>
+          <path d="M106 64 A42 42 0 0 1 64 106" stroke="#f0b429" stroke-width="7" stroke-linecap="round"/>
+          <path d="M64 106 A42 42 0 0 1 22 64" stroke="#3fb950" stroke-width="7" stroke-linecap="round"/>
+          <path d="M22 64 A42 42 0 0 1 64 22" stroke="#d2a8ff" stroke-width="7" stroke-linecap="round"/>
+          <polygon points="64,34 86,84 64,73 42,84" fill="#e6edf3"/>
+        </svg>
+        AGENT-OODA // UBERMETROID
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#pipeline">Pipeline</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#fleet">7-Lane Fleet</a>
+        <a href="#mcp">MCP Server</a>
+        <a href="#review">Verify</a>
+        <a href="#quickstart">Install</a>
+      </nav>
+      <a class="btn btn-primary" href="https://github.com/UberMetroid/mcode-router">GitHub Repo</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <span class="eyebrow">mcode-router v1.0.0 &bull; Static Go 1.22+ (CGO_ENABLED=0) &bull; MCP Server</span>
+        <h1>Turn one MiniMax Code session into a<br><span>token-routed agent fleet.</span></h1>
+        <p class="lead">
+          <strong>UberMetroid/mcode-router</strong> is a zero-dependency static Go OODA engine that plugs into
+          MiniMax Code (<code>mcode</code>) through a built-in MCP server. Four stages
+          (<code>observe</code>, <code>orient</code>, <code>act</code>, <code>verify</code>) resolve a lane, a model
+          and an effort level from live quota state, and every diff is graded by a different model family.
+        </p>
+        <div class="install-bar" role="region" aria-label="One-line web installer">
+          <code id="install-cmd">curl -fsSL https://ubermetroid.github.io/mcode-router/install.sh | bash</code>
+          <button class="btn btn-primary copy-btn" type="button" id="copy-install">Copy command</button>
+        </div>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#quickstart">Install &amp; Quickstart</a>
+          <a class="btn" href="https://github.com/UberMetroid/mcode-router/releases/latest">Release Binaries (v1.0.0)</a>
+          <a class="btn" href="#mcp">MCP Server</a>
+        </div>
+        <div class="telemetry-strip">
+          <div class="stat">
+            <div class="stat-k">OODA Pipeline</div>
+            <div class="stat-v green">observe &rarr; orient &rarr; act &rarr; verify</div>
+          </div>
+          <div class="stat">
+            <div class="stat-k">Static Binary</div>
+            <div class="stat-v cyan">Go 1.22+ &bull; CGO_ENABLED=0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-k">MCP Tools</div>
+            <div class="stat-v violet">7 Stage &amp; Fleet Tools</div>
+          </div>
+          <div class="stat">
+            <div class="stat-k">Dependencies</div>
+            <div class="stat-v amber">0 Third-Party Packages</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>The OODA Pipeline</h2>
+          <span class="sec-tag">observe &rarr; orient &rarr; act &rarr; verify</span>
+        </div>
+        <p class="sec-sub">
+          Every stage is a separate, quota-aware call with its own lane, model and effort resolution. The
+          orchestrator stays thin: it owns the plan and the final call while the workers do the reading, the
+          writing and the grading.
+        </p>
+
+        <div class="grid-2" style="margin-bottom: 18px;">
+          <div class="card">
+            <span class="badge b-cyan">Observe</span>
+            <h3><code>ooda_recon</code> &mdash; Read-Only Recon</h3>
+            <p>
+              Answers questions about repository structure, build and test commands, and the location of a
+              symbol. It never writes, creates or deletes a file, and it never runs a build.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-amber">Orient</span>
+            <h3><code>ooda_orient</code> &mdash; Root Cause &amp; Plan</h3>
+            <p>
+              Synthesizes root cause, invariants, blast radius and file coupling for a problem, then proposes
+              an ordered plan. Also strictly read-only.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-green">Act</span>
+            <h3><code>ooda_task</code> &mdash; Scoped Implementation</h3>
+            <p>
+              Executes a scoped coding task in the working directory or in an isolated
+              <code>git worktree</code> gated by atomic <code>flock</code> leases, so parallel builds never
+              collide.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-violet">Verify</span>
+            <h3><code>ooda_review</code> &mdash; Off-Family Diff Gate</h3>
+            <p>
+              Reviews the working-tree diff with an independent model family. The authoring family is excluded
+              automatically and the gate fails closed on any unclear verdict.
+            </p>
+          </div>
+        </div>
+
+        <div class="terminal" role="region" aria-label="OODA stage pipeline and routing resolution">
+          <div class="term-bar">
+            <span class="term-ws">[OODA PIPELINE]</span>
+            <span>per-stage routing &bull; automatic lane resolution</span>
+          </div>
+          <pre class="codeblock"><code>OBSERVE   ooda_recon     read-only recon: structure, build &amp; test cmds, symbols
+ORIENT    ooda_orient    root cause, invariants, blast radius, ordered plan
+ACT       ooda_task      scoped coding task in the working dir or a worktree
+VERIFY    ooda_review    independent off-family review of the working-tree diff
+DECIDE    orchestrator   you keep the plan and the final call
+
+stage resolution : CLI flag &gt; --local &gt; --profile &gt; global pin &gt; auto
+lane resolution  : quota state + capability regime + UTC off-peak tariff
+</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>Static Go Core &amp; MiniMax Code Adapter</h2>
+          <span class="sec-tag">cmd/mcode-router &bull; internal/* &bull; bin/mcode-router-mcp</span>
+        </div>
+        <p class="sec-sub">
+          One zero-dependency Go engine serves every role: the CLI dispatcher, the MCP server and the fleet
+          scheduler all live in the same static binary, so no extra runtime or dependency is introduced into
+          your host.
+        </p>
+        <div class="grid-2">
+          <div class="card">
+            <span class="badge b-cyan">Multi-Call Binary</span>
+            <h3>One Static Executable, Two Entry Points</h3>
+            <p>
+              Built with <code>CGO_ENABLED=0</code> and zero third-party packages. It inspects <code>argv[0]</code>
+              to run as <code>mcode-router</code> (CLI dispatcher and fleet admin) or
+              <code>mcode-router-mcp</code> (MCP server over stdio), with instant startup and no shell bridge.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-violet">Shared Engine</span>
+            <h3>One Quota Store, One Verifier</h3>
+            <p>
+              Core packages live under
+              <code>internal/{fleet,envelope,dispatch,verify,worktree,cli,install,theme}</code> and share a
+              single quota store, lease mechanism, worktree allocator and diff verifier instead of duplicating
+              them per host.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-green">Fail-Closed Supply</span>
+            <h3>Zero-Go Verified Releases</h3>
+            <p>
+              GitHub Releases publish cross-compiled static binaries (<code>linux</code>/<code>darwin</code>,
+              <code>amd64</code>/<code>arm64</code>) alongside <code>SHA256SUMS</code>. Hosts without Go verify the
+              checksum fail-closed before installing.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-amber">House-Law Gate</span>
+            <h3><code>make all</code> Before Every Landing</h3>
+            <p>
+              The gate ladder enforces portability, file shape, directory density and identifier limits, then runs
+              <code>go vet</code>, <code>go test -race</code> and binary dogfood checks with zero skips. No author
+              home paths, no embedded credentials, no <code>sh -c</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="principles">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>First Principles &amp; Zero-Trust Architecture</h2>
+          <span class="sec-tag">Zero Trust &bull; Quota Economics &bull; Worktree Isolation</span>
+        </div>
+        <p class="sec-sub">
+          Built directly from first principles: fixed-clock subscriptions lose all unused quota when their
+          window resets, and under Zero Trust no model family should ever grade its own output or touch
+          paid credits unattended.
+        </p>
+
+        <div class="grid-3" style="margin-bottom: 18px;">
+          <div class="card">
+            <span class="badge b-cyan">Fast Path</span>
+            <h3>Thin Orchestrator (&lt;10% Burn)</h3>
+            <p>
+              Top-level chat owns planning and Decide while workers handle recon, orientation and scoped edits,
+              keeping the orchestrator's own quota protected.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-amber">Zero Trust</span>
+            <h3>Cross-Model Verify &amp; Rotation</h3>
+            <p>
+              The verify stage excludes every model family that wrote or attempted the diff and rotates families
+              on rejection or mismatch. Hard cap of 3 act loops.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-green">Isolation</span>
+            <h3>Isolated Worktree Swarms</h3>
+            <p>
+              Multi-module manifests spin up one isolated <code>git worktree</code> per task on branch
+              <code>ooda/&lt;id&gt;</code> gated by atomic <code>flock</code> concurrency leases.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-5">
+          <div class="card">
+            <span class="badge b-green">EXPIRING</span>
+            <h3>Use Before Reset</h3>
+            <p>Prioritizes soonest-resetting windows and 0.5x UTC off-peak tariffs so capacity never goes to waste.</p>
+          </div>
+          <div class="card">
+            <span class="badge b-cyan">READY</span>
+            <h3>Healthy Pools</h3>
+            <p>Rotates evenly across healthy bounded pools (<code>muse</code>, <code>grok</code>, <code>mistral</code>).</p>
+          </div>
+          <div class="card">
+            <span class="badge b-amber">SPARING</span>
+            <h3>Save Last Cap</h3>
+            <p>When only one bounded lane remains active, free SWE-2 and <code>mcode</code> pools handle
+            routine tasks first.</p>
+          </div>
+          <div class="card">
+            <span class="badge b-violet">CREDITS</span>
+            <h3>Opt-In Only</h3>
+            <p>Blocks paid <code>devin-fusion</code> credits from automatic selection, saved pins and reviews
+            unless explicitly requested.</p>
+          </div>
+          <div class="card">
+            <span class="badge b-red">COOLING</span>
+            <h3>Auto-Wake</h3>
+            <p>Parses ISO and relative resets, caps transient 429 backoffs, and auto-wakes lanes when timers expire.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="fleet">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>The 7-Lane Fleet</h2>
+          <span class="sec-tag">mcode-router --status &bull; --discover &bull; --probe</span>
+        </div>
+        <p class="sec-sub">
+          Currently configured for the <strong>5 agent CLIs</strong> (<code>7</code> lanes) we actively subscribe to
+          below. <code>mcode-router --status</code> and <code>mcode-router --discover</code> probe installed CLIs
+          dynamically for active models, effort controls, UTC off-peak and peak-jam tariffs, and injectable skills.
+          <code>mcode-router --probe</code> runs minimal 1-token prompt canaries (skipping credits), while an omitted
+          complexity or skill is inferred automatically.
+        </p>
+
+        <div class="table-wrap" style="margin-bottom: 18px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Lane</th>
+                <th>CLI</th>
+                <th>Model &amp; Effort Discovery</th>
+                <th>Tier &amp; Window</th>
+                <th>Parallelism &amp; Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>devin-fusion</code></td>
+                <td><a href="https://docs.devin.ai/" target="_blank" rel="noopener">Cognition Devin</a>
+                (<code>devin</code>)</td>
+                <td><code>fusion</code> pool (via-model)</td>
+                <td>paid credits &bull; opt-in only</td>
+                <td>Opt-in only (blocked from auto, pins &amp; <code>--probe</code>)</td>
+              </tr>
+              <tr>
+                <td><code>devin-pro</code></td>
+                <td><a href="https://docs.devin.ai/" target="_blank" rel="noopener">Cognition Devin</a>
+                (<code>devin</code>)</td>
+                <td><code>swe-2</code> family (via-model)</td>
+                <td>unlimited &bull; 24h + 7d</td>
+                <td>Heavy implementation &amp; refactors</td>
+              </tr>
+              <tr>
+                <td><code>devin-fast</code></td>
+                <td><a href="https://docs.devin.ai/" target="_blank" rel="noopener">Cognition Devin</a>
+                (<code>devin</code>)</td>
+                <td><code>swe-2-flash</code> family (via-model)</td>
+                <td>unlimited &bull; 24h + 7d</td>
+                <td>Fast sweeps, tests &amp; recon &bull; <strong>max 4 parallel</strong></td>
+              </tr>
+              <tr>
+                <td><code>muse</code></td>
+                <td><a href="https://dev.meta.ai/products/muse-code" target="_blank" rel="noopener">Meta Muse Code</a>
+                (<code>muse</code>)</td>
+                <td><code>muse-ember-1.0</code> on act &bull; <code>muse-wonder-1.0</code> on deep</td>
+                <td>capped &bull; 5h + 7d</td>
+                <td>Power lane &bull; auto-skips PAYG <code>api_key</code></td>
+              </tr>
+              <tr>
+                <td><code>mcode</code></td>
+                <td><a href="https://github.com/MiniMax-AI/minimax-code" target="_blank" rel="noopener">MiniMax Code</a>
+                (<code>mcode</code>)</td>
+                <td><code>--effort</code> <code>low|medium|high|xhigh|max</code></td>
+                <td>high-cap &bull; 5h + 7d</td>
+                <td>Primary reviewer &bull; <strong>max 4 parallel</strong></td>
+              </tr>
+              <tr>
+                <td><code>grok</code></td>
+                <td><a href="https://github.com/xai-org/grok-build" target="_blank" rel="noopener">xAI Grok Build</a>
+                (<code>grok</code>)</td>
+                <td><code>--reasoning-effort</code> <code>medium|high|xhigh</code></td>
+                <td>capped &bull; 7d rolling weekly</td>
+                <td>Shared weekly pool &amp; off-family reviewer</td>
+              </tr>
+              <tr>
+                <td><code>mistral</code></td>
+                <td><a href="https://github.com/mistralai/mistral-vibe" target="_blank" rel="noopener">Mistral Vibe</a>
+                (<code>vibe</code>)</td>
+                <td><code>glm-5-3[high]</code></td>
+                <td>capped &bull; 30d monthly</td>
+                <td><code>0.5x</code> UTC off-peak aware
+                (<a href="https://docs.z.ai/" target="_blank" rel="noopener">Z.ai</a> / DeepSeek)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Stage Routing Priority</h3>
+            <p>
+              <strong>Observe (recon):</strong> <code>devin-fast &rarr; mcode &rarr; devin-pro &rarr; muse</code><br>
+              <strong>Act (default):</strong> Expiring clocks &rarr; <code>0.5x</code> off-peak &rarr; short
+              windows &rarr; free lanes<br>
+              <strong>Parallel stripe:</strong>
+              <code>muse &rarr; grok &rarr; mistral &rarr; devin-pro &rarr; devin-fast &rarr; mcode</code><br>
+              <strong>Fallback chain:</strong>
+              <code>muse &rarr; grok &rarr; mistral &rarr; devin-fast &rarr; devin-pro &rarr; mcode</code><br>
+              <strong>Verify:</strong>
+              <code>mcode &rarr; devin-fast &rarr; devin-pro &rarr; grok &rarr; mistral &rarr; muse</code>
+            </p>
+          </div>
+          <div class="card">
+            <h3>Hard Binary Guardrails</h3>
+            <p>
+              Workers run with <code>MCODE_ROUTER_DEPTH=1</code> &amp; <code>ROUTER_DEPTH=1</code> (or higher).
+              The Go CLI blocks recursive dispatch,
+              <code>--probe</code>, <code>--cleanup</code>, and quota mutations with exit <code>2</code> whenever depth
+              <code>&gt;=1</code>, and hard-rejects <code>gemini*</code> or <code>orchestrator*</code>
+              models on any worker or review lane.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <span class="badge b-amber">Unconfigured Agents</span>
+          <h3>Other Agent CLIs (Not Wired &mdash; No Active Paid Subscription)</h3>
+          <p>
+            <code>mcode-router</code> does not currently wire
+            <a href="https://code.claude.com/docs/en/overview" target="_blank" rel="noopener">Anthropic Claude Code</a>
+            (<code>claude</code>),
+            <a href="https://github.com/openai/codex" target="_blank" rel="noopener">OpenAI Codex CLI</a> (<code>codex</code>),
+            <a href="https://cursor.com/cli" target="_blank" rel="noopener">Cursor CLI</a> (<code>cursor-agent</code>),
+            <a href="https://github.com/features/copilot" target="_blank" rel="noopener">GitHub Copilot CLI</a>
+            (<code>copilot</code>),
+            <a href="https://ampcode.com/" target="_blank" rel="noopener">Sourcegraph Amp</a> (<code>amp</code>), or
+            <a href="https://factory.ai/" target="_blank" rel="noopener">Factory Droid</a> (<code>droid</code>)
+            because we don&apos;t pay for subscriptions to them today. New CLI adapters can be added modularly under
+            <code>internal/dispatch/</code> and <code>internal/fleet/</code> if you want to route your own plan.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="mcp">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>The MCP Server</h2>
+          <span class="sec-tag">bin/mcode-router-mcp &bull; stdio</span>
+        </div>
+        <p class="sec-sub">
+          <code>mcode-router</code> ships a Model Context Protocol server inside the same static binary.
+          MiniMax Code launches it over stdio, and the model calls the OODA stages directly &mdash; no shell
+          round-trip, no plugin bridge, no extra process to babysit. Each tool maps to the matching CLI verb, so
+          lane, model, effort, complexity and timeout overrides all apply.
+        </p>
+
+        <div class="table-wrap" style="margin-bottom: 18px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Tool</th>
+                <th>Stage</th>
+                <th>What It Does</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>ooda_recon</code></td>
+                <td><span class="c-cyan">observe</span></td>
+                <td>Read-only reconnaissance of repository structure, build and test commands, and symbol locations.</td>
+              </tr>
+              <tr>
+                <td><code>ooda_orient</code></td>
+                <td><span class="c-amber">orient</span></td>
+                <td>Root cause, invariants, blast radius and file coupling, then an ordered implementation plan.</td>
+              </tr>
+              <tr>
+                <td><code>ooda_task</code></td>
+                <td><span class="c-green">act</span></td>
+                <td>Executes a scoped coding task in the working directory or in an isolated worktree.</td>
+              </tr>
+              <tr>
+                <td><code>ooda_review</code></td>
+                <td><span class="c-violet">verify</span></td>
+                <td>Independent cross-model review of the working-tree diff; the reviewer is never the authoring family.</td>
+              </tr>
+              <tr>
+                <td><code>ooda_status</code></td>
+                <td><span class="c-muted">fleet</span></td>
+                <td>Live fleet state: lane status, tier, model, effort, quota resets and the stage routing matrix.</td>
+              </tr>
+              <tr>
+                <td><code>ooda_usage</code></td>
+                <td><span class="c-muted">fleet</span></td>
+                <td>Per-lane quota windows (<code>5h</code>/<code>24h</code>/<code>7d</code>/<code>30d</code>),
+                UTC tariffs and current spend.</td>
+              </tr>
+              <tr>
+                <td><code>ooda_set_stage</code></td>
+                <td><span class="c-muted">fleet</span></td>
+                <td>Pin or reset a stage lane
+                (<code>observe</code>/<code>orient</code>/<code>act</code>/<code>verify</code>) globally or for one repo.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <span class="badge b-cyan">Context Hooks</span>
+            <h3>Automatic Routing, Zero User Input</h3>
+            <p>
+              The <code>SessionStart</code> and <code>UserPromptSubmit</code> context hooks inject live fleet status
+              and the stage routing matrix into every session. Lane, model and effort selection is therefore
+              automatic: no probe call, no model round-trip, no picker to operate.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-violet">Override Knobs</span>
+            <h3>Same Verbs as the CLI</h3>
+            <p>
+              Every stage tool accepts the same overrides as its CLI counterpart: a forced <code>lane</code>, a
+              forced <code>model</code>, an <code>effort</code> level, a capability <code>complexity</code>, a
+              <code>profile</code>, worker <code>skills</code>, scoped <code>files</code> and a <code>timeout</code>.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-green">Host Package</span>
+            <h3>Skills, Profiles &amp; Server Entry</h3>
+            <p>
+              The installer registers the <code>mcode-router</code> MCP server entry plus the
+              <code>mcode-router</code>, <code>lane</code> and <code>harden</code> skills and eight OODA agent
+              profiles, validated against the host manifest and packaging rules.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="review">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>Cross-Model Diff Verification</h2>
+          <span class="sec-tag">mcode-router --review .</span>
+        </div>
+        <p class="sec-sub">
+          No model family grades its own patch. <code>mcode-router --review</code> excludes the authoring family automatically,
+          tracks pre-task <code>HeadRef</code> state so worker commits never evade scope or review checks, renders
+          untracked files as synthetic hunks, and fails closed on any <code>[P0-3]</code>, <code>UNKNOWN</code>, or
+          <code>SKIPPED</code> result.
+        </p>
+        <div class="grid-3">
+          <div class="card">
+            <span class="badge b-green">&le; 8 KiB Working Tree</span>
+            <h3>Native Repo Review</h3>
+            <p>
+              Invokes <code>mcode exec review</code> with <code>--permission smart --max-steps 15</code> so the reviewer
+              inspects surrounding context directly in the workspace.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-cyan">&gt; 8 KiB or Committed</span>
+            <h3>Bounded Patch Audit</h3>
+            <p>
+              Streams a bounded patch audit prompt with <code>--permission smart --prompt-mode coding --max-steps 25</code>
+              against <code>baseRef..working-tree</code> or unborn <code>HEAD</code>.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-violet">Fail-Closed Backup</span>
+            <h3>Off-Family Fallback</h3>
+            <p>
+              On cooldown, timeout (<code>240s</code> default), or <code>UNKNOWN</code> verdict, verification rotates
+              across <code>mcode &rarr; devin-fast &rarr; devin-pro &rarr; grok &rarr; mistral &rarr; muse</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quickstart">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>Install, Uninstall &amp; House Laws</h2>
+          <span class="sec-tag">make all</span>
+        </div>
+        <div class="grid-2">
+          <div>
+            <pre class="codeblock"><code># One-line web installer (no Go required; SHA-256 verified binary)
+curl -fsSL https://ubermetroid.github.io/mcode-router/install.sh | bash
+
+# Or install from source (builds if Go 1.22+ is present)
+git clone https://github.com/UberMetroid/mcode-router.git
+cd mcode-router &amp;&amp; ./install.sh
+
+# restart MiniMax Code so the MCP server, hooks, skills &amp; profiles load
+mcode-router --version   # print binary version
+mcode-router --status    # OODA stage matrix, fleet tiers, resets &amp; skills
+mcode-router --usage     # per-lane 5h/24h/7d/30d windows &amp; UTC tariffs
+mcode-router --set-stage act=grok --effort xhigh
+mcode-router --set-stage preset=deep   # or --reset-stages
+mcode-router --discover  # refresh live CLI model probes
+mcode-router --probe     # minimal 1-token prompt canaries
+mcode-router --recon "Map auth flow and callers"
+mcode-router --orient "Trace cache invalidation &amp; coupling"
+mcode-router --review .  # cross-model diff gate
+make all                 # full House-Law + race test + dogfood suite
+
+# Uninstall (guards uncommitted/unpushed work)
+curl -fsSL https://ubermetroid.github.io/mcode-router/install.sh | bash -s -- --uninstall
+
+# Uninstall and drop local state and the checkout as well
+curl -fsSL https://ubermetroid.github.io/mcode-router/install.sh | bash -s -- --uninstall --purge</code></pre>
+          </div>
+          <div class="card">
+            <span class="badge b-green">Install</span>
+            <h3>What the Installer Wires</h3>
+            <p>
+              The web installer clones or fast-forwards <code>UberMetroid/mcode-router</code> into
+              <code>${XDG_DATA_HOME:-~/.local/share}/mcode-router</code> and invokes <code>./install.sh</code>. On hosts
+              without Go 1.22+, <code>install.sh</code> downloads the matching static GitHub Release binary and verifies
+              its SHA-256 checksum against <code>SHA256SUMS</code> before installing. It links
+              <code>~/.local/bin/mcode-router</code> and <code>bin/mcode-router-mcp</code>, then wires the MiniMax Code
+              adapter: skills, agent profiles, the <code>mcode-router</code> MCP server entry and the
+              <code>SessionStart</code> / <code>UserPromptSubmit</code> context hooks.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 18px;">
+          <div class="card">
+            <span class="badge b-amber">Uninstall</span>
+            <h3>Clean, Guarded Removal</h3>
+            <p>
+              <code>./install.sh --uninstall</code> removes only symlinks resolving into this repo and leaves every other
+              MiniMax Code server and hook in place. Quota state and backups stay intact unless you pass
+              <code>--purge</code>, and the web installer refuses to purge a dirty or unpushed git checkout.
+            </p>
+          </div>
+          <div class="card">
+            <h3>State Paths &amp; House-Law Gates</h3>
+            <p>
+              Quota state (<code>v9</code>) and global stage pins persist under
+              <code>${XDG_STATE_HOME:-~/.local/state}/mcode-router/quota.json</code> (override via
+              <code>MCODE_ROUTER_QUOTA_FILE</code>); <code>--local</code> per-repo pins live out-of-git in
+              <code>workspaces/&lt;id&gt;.json</code>. Runtime state is never mutated inside git.
+            </p>
+            <div class="pills">
+              <span class="pill">portable (0 requires, no home paths)</span>
+              <span class="pill">line-cap (16&ndash;256 lines, &le;128 cols)</span>
+              <span class="pill">shape (&le;8 funcs/file, &le;64 lines/fn, depth &le;4)</span>
+              <span class="pill">density (&le;8 entries/dir)</span>
+              <span class="pill">vocab (&le;32-char IDs)</span>
+              <span class="pill">plugin-check</span>
+              <span class="pill">go test -race</span>
+              <span class="pill">dogfood</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap foot-inner">
+      <span>Built by <a href="https://github.com/UberMetroid">UberMetroid</a> &bull; Zero-Trust OODA
+      &amp; First-Principles Quota Routing</span>
+      <span>
+        <a href="https://github.com/UberMetroid/mcode-router">UberMetroid/mcode-router</a>
+        &middot;
+        <a href="https://github.com/UberMetroid/mcode-router/releases/latest">Releases</a>
+        &middot;
+        <a href="https://ubermetroid.github.io/">ubermetroid.github.io</a>
+      </span>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var btn = document.getElementById("copy-install");
+      var cmd = document.getElementById("install-cmd");
+      if (!btn || !cmd) return;
+      btn.addEventListener("click", function () {
+        var text = cmd.textContent.trim();
+        var done = function () {
+          btn.textContent = "Copied!";
+          setTimeout(function () { btn.textContent = "Copy command"; }, 1800);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, function () {});
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

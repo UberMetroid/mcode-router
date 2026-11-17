@@ -1,0 +1,210 @@
+{
+  "version": 9,
+  "updated_at": null,
+  "drain_capped_first": true,
+  "stages": {
+    "observe": {
+      "lane": "auto"
+    },
+    "orient": {
+      "lane": "auto"
+    },
+    "act": {
+      "lane": "auto"
+    },
+    "verify": {
+      "lane": "auto"
+    }
+  },
+  "parallel_stripe_pool": [
+    "muse",
+    "grok",
+    "mistral",
+    "devin-fast",
+    "devin-pro",
+    "mcode"
+  ],
+  "default_fallback_chain": [
+    "muse",
+    "grok",
+    "mistral",
+    "devin-fast",
+    "devin-pro",
+    "mcode"
+  ],
+  "providers": {
+    "devin-fusion": {
+      "cli": "devin",
+      "model": null,
+      "effort": null,
+      "tier": "credits",
+      "role": "Devin Fusion pool (paid credits; opt-in --lane only)",
+      "status": "active",
+      "cooldown_until": null,
+      "reason": null,
+      "manual_disable": false,
+      "max_parallel": null,
+      "cycle_hours": null,
+      "cycle_started_at": null,
+      "next_reset_at": null,
+      "cycle_runs": 0,
+      "cycle_tokens": 0,
+      "cycle_tokens_exact": false,
+      "cycle_cost_usd": 0.0,
+      "cycle_token_budget": null,
+      "cycle_cost_budget_usd": null
+    },
+    "devin-pro": {
+      "cli": "devin",
+      "model": null,
+      "effort": null,
+      "tier": "unlimited",
+      "role": "Heavy implementation & refactors (Devin Pro 24h daily + 7d weekly)",
+      "status": "active",
+      "windows": [
+        "24h",
+        "7d"
+      ],
+      "cooldown_until": null,
+      "reason": null,
+      "manual_disable": false,
+      "max_parallel": null,
+      "cycle_hours": 24.0,
+      "outer_hours": 168.0,
+      "cycle_started_at": null,
+      "next_reset_at": null,
+      "cycle_runs": 0,
+      "cycle_tokens": 0,
+      "cycle_tokens_exact": false,
+      "cycle_cost_usd": 0.0,
+      "cycle_token_budget": null,
+      "cycle_cost_budget_usd": null
+    },
+    "devin-fast": {
+      "cli": "devin",
+      "model": null,
+      "effort": null,
+      "tier": "unlimited",
+      "role": "Fast mechanical sweeps, tests, recon (Devin Pro 24h + 7d, max 4 parallel)",
+      "status": "active",
+      "windows": [
+        "24h",
+        "7d"
+      ],
+      "cooldown_until": null,
+      "reason": null,
+      "manual_disable": false,
+      "max_parallel": 4,
+      "cycle_hours": 24.0,
+      "outer_hours": 168.0,
+      "cycle_started_at": null,
+      "next_reset_at": null,
+      "cycle_runs": 0,
+      "cycle_tokens": 0,
+      "cycle_tokens_exact": false,
+      "cycle_cost_usd": 0.0,
+      "cycle_token_budget": null,
+      "cycle_cost_budget_usd": null
+    },
+    "muse": {
+      "cli": "muse",
+      "model": null,
+      "effort": null,
+      "tier": "capped",
+      "role": "Meta Muse Power (muse-ember/wonder; 5h + 7d; skips PAYG api_key)",
+      "status": "active",
+      "windows": [
+        "5h",
+        "7d"
+      ],
+      "cooldown_until": null,
+      "reason": null,
+      "manual_disable": false,
+      "max_parallel": null,
+      "cycle_hours": 5.0,
+      "outer_hours": 168.0,
+      "cycle_started_at": null,
+      "next_reset_at": null,
+      "cycle_runs": 0,
+      "cycle_tokens": 0,
+      "cycle_tokens_exact": false,
+      "cycle_cost_usd": 0.0,
+      "cycle_token_budget": null,
+      "cycle_cost_budget_usd": null
+    },
+    "mcode": {
+      "cli": "mcode",
+      "model": null,
+      "effort": null,
+      "tier": "high-cap",
+      "role": "Primary review + parallel coding & recon (5h + 7d, max 4 parallel)",
+      "status": "active",
+      "windows": [
+        "5h",
+        "7d"
+      ],
+      "cooldown_until": null,
+      "reason": null,
+      "manual_disable": false,
+      "max_parallel": 4,
+      "cycle_hours": 5.0,
+      "outer_hours": 168.0,
+      "cycle_started_at": null,
+      "next_reset_at": null,
+      "cycle_runs": 0,
+      "cycle_tokens": 0,
+      "cycle_tokens_exact": false,
+      "cycle_cost_usd": 0.0,
+      "cycle_token_budget": null,
+      "cycle_cost_budget_usd": null
+    },
+    "grok": {
+      "cli": "grok",
+      "model": null,
+      "effort": null,
+      "tier": "capped",
+      "role": "xAI SuperGrok coding agent (shared 7d rolling weekly pool)",
+      "status": "active",
+      "windows": [
+        "7d"
+      ],
+      "cooldown_until": null,
+      "reason": null,
+      "manual_disable": false,
+      "max_parallel": null,
+      "cycle_hours": 168.0,
+      "cycle_started_at": null,
+      "next_reset_at": null,
+      "cycle_runs": 0,
+      "cycle_tokens": 0,
+      "cycle_tokens_exact": false,
+      "cycle_cost_usd": 0.0,
+      "cycle_token_budget": null,
+      "cycle_cost_budget_usd": null
+    },
+    "mistral": {
+      "cli": "vibe",
+      "model": null,
+      "effort": null,
+      "tier": "capped",
+      "role": "Mistral Vibe / GLM agent (30d monthly pool; off-peak aware for Z.ai)",
+      "status": "active",
+      "windows": [
+        "30d"
+      ],
+      "cooldown_until": null,
+      "reason": null,
+      "manual_disable": false,
+      "max_parallel": null,
+      "cycle_hours": 720.0,
+      "cycle_started_at": null,
+      "next_reset_at": null,
+      "cycle_runs": 0,
+      "cycle_tokens": 0,
+      "cycle_tokens_exact": false,
+      "cycle_cost_usd": 0.0,
+      "cycle_token_budget": null,
+      "cycle_cost_budget_usd": null
+    }
+  }
+}

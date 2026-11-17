@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Build
+        run: make build
+      - name: House-law gates
+        run: |
+          for gate in portable line-cap density vocab shape mcode-plugin; do
+            go run ./qa/gates --gate "$gate"
+          done
+      - name: Vet and race tests
+        run: go vet ./... && go test -race -count=1 ./...
+      - name: Dogfood
+        run: make dogfood
