@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] — 2026-11-17
+
+### Changed
+
+- **The worker indicator moved to its own row.** MiniMax Code now renders the
+  router's worker as a block below its own status line, so worker traffic is a
+  separate row instead of another item in the session status. The
+  `tui.customStatusLine.display` setting moves from `inline` to `block`, and
+  `install.sh` prints the updated snippet.
+- **The worker row leads with its own token rate.** The row starts with
+  `### tok/s` and then names the worker model — `### tok/s ~181 ·
+  muse/muse-ember-1.0/max · stream · 24s` — so the rate on that row can never
+  be read as MiniMax Code's session telemetry.
+
 ## [1.0.7] — 2026-11-17
 
 ### Added
@@ -138,6 +152,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.8]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.8
 [1.0.7]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.7
 [1.0.6]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.6
 [1.0.5]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.5
