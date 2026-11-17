@@ -80,9 +80,9 @@ func buildDevinCmd(req CmdReq, model, promptFile string) (BuiltCmd, error) {
 		argv = append(argv, "--model", model)
 	}
 	argv = append(argv, "--permission-mode", perm, "--respect-workspace-trust", "false",
-		"--prompt-file", promptFile, "-p")
+		"--verbosity", "3", "--prompt-file", promptFile, "-p")
 	return BuiltCmd{Argv: argv, Env: childEnv(fleet.RouterDepth()+1, req.Provider, ro),
-		PromptFile: promptFile, StreamFmt: "plain"}, nil
+		PromptFile: promptFile, StreamFmt: "text"}, nil
 }
 
 func buildMcodeCmd(req CmdReq, model string) (BuiltCmd, error) {

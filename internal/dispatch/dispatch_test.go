@@ -204,9 +204,9 @@ func TestCorruptQuotaAndBoundedStream(t *testing.T) {
 		t.Fatalf("tailBuf invariant failed: out=%d buf=%d valid=%v", len(out), len(tb.buf), utf8.ValidString(out))
 	}
 	br := bufio.NewReaderSize(strings.NewReader(strings.Repeat("a", 2048)+"\ntail\n"), 64)
-	if ln, err := readBoundedLine(br, 128); err != nil || len(ln) > 129 || maxLineBytes < 1<<20 {
+	if ln, err := readStream(br, 128, "plain"); err != nil || len(ln) > 129 || maxLineBytes < 1<<20 {
 		t.Fatalf("bounded line check failed: len=%d max=%d err=%v", len(ln), maxLineBytes, err)
-	} else if next, nerr := readBoundedLine(br, 128); nerr != nil || next != "tail\n" {
+	} else if next, nerr := readStream(br, 128, "plain"); nerr != nil || next != "tail\n" {
 		t.Fatalf("expected next line 'tail\\n' after drain, got %q (%v)", next, nerr)
 	}
 	for _, tc := range [][2]string{{"benign note", "VERDICT:"}, {"error: disk", "[stderr] error: disk\n"}} {
@@ -242,5 +242,15 @@ func TestMidStreamQuotaAbortAndLine(t *testing.T) {
 	}
 	if _, isErr, qKill := extractJSONErr(map[string]any{"error": "unexpected field 429"}, nil); !isErr || qKill {
 		t.Fatalf("expected non-quota JSON error not to trigger qKill: isErr=%v qKill=%v", isErr, qKill)
+	}
+	mp := HudWorkerStart(WorkerMarker{PID: os.Getpid(), TaskID: "txt", Mode: "observe", Lane: "devin-fast", Cwd: tmp})
+	ds := filepath.Join(tmp, "txt.sh")
+	_ = os.WriteFile(ds, []byte("#!/bin/sh\nprintf 'model text streaming without line breaks'\nsleep 2\n"), 0o755)
+	ExecuteOnce(ExecReq{Provider: "devin-fast", CLIPath: ds, Prompt: "hi", Worktree: tmp, SlotDir: tmp,
+		TaskID: "txt", TimeoutSec: 10, MarkerPath: mp})
+	raw, _ := os.ReadFile(mp)
+	m := WorkerMarker{}
+	if json.Unmarshal(raw, &m) != nil || m.Phase != "stream" || m.TokS <= 0 {
+		t.Fatalf("text worker telemetry missing: %+v", m)
 	}
 }

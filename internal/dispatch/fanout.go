@@ -18,7 +18,14 @@ import (
 
 var maxLineBytes = 1 << 20
 
-func readBoundedLine(br *bufio.Reader, limit int) (string, error) {
+// readStream reads one unit of a worker stream: a bounded line for line-oriented
+// lanes, or a raw chunk for text lanes that stream model text without line breaks.
+func readStream(br *bufio.Reader, limit int, mode string) (string, error) {
+	if mode == "text" {
+		buf := make([]byte, 4096)
+		n, err := br.Read(buf)
+		return string(buf[:n]), err
+	}
 	var out []byte
 	for {
 		frag, err := br.ReadSlice('\n')

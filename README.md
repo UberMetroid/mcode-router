@@ -129,6 +129,11 @@ The router entry is silent while nothing is dispatched, so the bar never adds no
 idle session. The `tui:` block is merged into `~/.minimax/config.yaml`; `install.sh` prints
 the snippet on every run.
 
+The rate on that row is measured from the worker's own streamed model text, so it is
+reported for every lane — the Devin lanes included, which run with `--verbosity 3` so
+their text streams as the model writes it. It carries a `~` because it is a text-rate
+estimate rather than a provider token count.
+
 ## CLI
 
 ```bash

@@ -63,21 +63,24 @@ func safeKillGroup(mu *sync.Mutex, reaped *bool, p *os.Process) error {
 }
 
 func pumpStream(
-	r io.Reader, ndjson, checkStderrQuota bool, wg *sync.WaitGroup,
+	r io.Reader, mode string, checkStderrQuota bool, wg *sync.WaitGroup,
 	mu *sync.Mutex, st *streamTracker, onAbort func(),
 ) {
 	defer wg.Done()
 	br := bufio.NewReaderSize(r, 16*1024)
 	for {
-		line, err := readBoundedLine(br, maxLineBytes)
+		line, err := readStream(br, maxLineBytes, mode)
 		if line != "" {
 			now := nowFloatSec()
 			mu.Lock()
 			st.lastIO = now
-			if ndjson {
+			if mode == "ndjson" {
 				st.consumeLine(line, now)
 			} else {
 				st.rawBuf.addStr(line)
+				if mode == "text" {
+					st.addRateBytes(now, len(line), false)
+				}
 				trimmed := strings.TrimSpace(line)
 				low := strings.ToLower(trimmed)
 				errFrame := checkStderrQuota || strings.HasPrefix(low, "error:") ||
@@ -210,8 +213,8 @@ func runStreamProcess(req ExecReq, built BuiltCmd, timeoutSec int) ExecRes {
 	defer stopTick()
 	var wg sync.WaitGroup
 	wg.Add(3)
-	go pumpStream(prOut, built.StreamFmt == "ndjson", false, &wg, &mu, st, onAbort)
-	go pumpStream(prErr, false, true, &wg, &mu, errSt, onAbort)
+	go pumpStream(prOut, built.StreamFmt, false, &wg, &mu, st, onAbort)
+	go pumpStream(prErr, "plain", true, &wg, &mu, errSt, onAbort)
 	go runHudTicker(tickCtx, &wg, built.StreamFmt == "ndjson", req, &mu, st, errSt, onAbort)
 	werr := cmd.Wait()
 	mu.Lock()
