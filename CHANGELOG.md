@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] — 2026-11-17
+
+### Added
+
+- **One-command version bump.** `make bump-version VERSION=1.0.6` rewrites the CLI
+  version constant, the MiniMax Code plugin manifest and the changelog release
+  heading in a single pass, so the three places that carry the version can no
+  longer drift apart. The command refuses a version that is not
+  `major.minor.patch`, is idempotent, and re-reads every file after writing, so a
+  half-applied bump fails loudly instead of shipping.
+- **Release verification.** `make release-check` prints the version found in each
+  release file and exits non-zero when they disagree, which catches a manifest
+  that was edited without the CLI constant.
+- **Release checklist.** `RELEASE.md` documents the full release path — prepare,
+  bump, verify, gate, tag, publish and refresh the local install — including the
+  ordering trap that made the v1.0.5 tag ship a stale version string.
+
 ## [1.0.5] — 2026-11-17
 
 ### Changed
@@ -104,6 +121,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.6]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.6
 [1.0.5]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.5
 [1.0.4]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.4
 [1.0.3]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.3
