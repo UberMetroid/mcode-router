@@ -190,6 +190,18 @@ The repository is machine-checked by `make all`:
 
 See [`AGENTS.md`](AGENTS.md) for the full engineering standards.
 
+## Releasing
+
+The version lives in three files: the CLI constant, the plugin manifest and the
+changelog. One command keeps them aligned:
+
+```sh
+make bump-version VERSION=1.0.6
+make release-check
+```
+
+See [`RELEASE.md`](RELEASE.md) for the full release checklist.
+
 ## Configuration
 
 | Variable | Purpose |

@@ -1,6 +1,6 @@
 GO ?= go
 
-.PHONY: all build portable line-cap density vocab shape mcode-plugin test dogfood install uninstall
+.PHONY: all build portable line-cap density vocab shape mcode-plugin test dogfood install uninstall bump-version release-check
 
 all: build portable line-cap density vocab shape mcode-plugin test dogfood
 
@@ -51,3 +51,12 @@ install:
 
 uninstall:
 	./install.sh --uninstall
+
+# Bumps the CLI version constant, the plugin manifest and the changelog together.
+bump-version:
+	@test -n "$(VERSION)" || { echo "usage: make bump-version VERSION=1.0.6"; exit 2; }
+	$(GO) run ./cmd/release bump $(VERSION)
+
+# Verifies that every release file carries the same version.
+release-check:
+	$(GO) run ./cmd/release check
