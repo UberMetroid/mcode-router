@@ -42,14 +42,3 @@ jobs:
             --title "${GITHUB_REF_NAME}" \
             --generate-notes \
             dist/mcode-router-* dist/SHA256SUMS
-
-  pages:
-    runs-on: ubuntu-latest
-    needs: binaries
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
-      - uses: actions/deploy-pages@v4
