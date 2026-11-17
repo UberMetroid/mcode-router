@@ -122,17 +122,20 @@ own token rate so it is never confused with MCode's session telemetry:
 
 ```
 /tmp/project │ ✦ M3.1-Flash · Effort max │ Context 512K
-### tok/s ~181 · muse/muse-ember-1.0/max · stream · 24s
+⚡ ~181 tok/s · muse/muse-ember-1.0/max · stream · 24s
 ```
+
+The rate is measured from the worker's own streamed model text, so it is reported for
+every lane — the Devin lanes included, which run with `--verbosity 3` so their text
+streams as the model writes it. It carries a `~` because it is a text-rate estimate
+rather than a provider token count, and it is coloured by throughput: muted while the
+worker is idle, then progressively brighter green as it speeds up. The lightning bolt
+and layout match the token rate MiniMax Code shows for its own session model, so the
+two rates read the same way; the lane name follows in the theme's accent colour.
 
 The router entry is silent while nothing is dispatched, so the bar never adds noise to an
 idle session. The `tui:` block is merged into `~/.minimax/config.yaml`; `install.sh` prints
 the snippet on every run.
-
-The rate on that row is measured from the worker's own streamed model text, so it is
-reported for every lane — the Devin lanes included, which run with `--verbosity 3` so
-their text streams as the model writes it. It carries a `~` because it is a text-rate
-estimate rather than a provider token count.
 
 ## CLI
 

@@ -125,7 +125,8 @@ func StatusLine(r io.Reader, w io.Writer) int {
 
 // FormatWorkerLine renders one active worker as a status line row.
 // The row leads with the worker token rate so it is never confused with
-// MiniMax Code's own session telemetry, then names the worker model.
+// MiniMax Code's own session telemetry, then names the worker model. The rate
+// is coloured by throughput, from muted while idle to bright when fast.
 func FormatWorkerLine(pal Palette, m dispatch.WorkerMarker, now time.Time, ctx StatusContext) string {
 	effort := strings.TrimSpace(m.Effort)
 	if effort == "" {
@@ -137,7 +138,7 @@ func FormatWorkerLine(pal Palette, m dispatch.WorkerMarker, now time.Time, ctx S
 		rate = "~" + rate
 	}
 	parts := []string{
-		pal.Muted + "### tok/s " + ansiReset + rate,
+		rateColor(pal, meta.rate) + rateBolt + " " + rate + " tok/s" + ansiReset,
 		pal.TUIAccent + m.Lane + ansiReset + "/" + dispatch.ShortModel(m.Model) + "/" + effort,
 		meta.phase,
 		fmt.Sprintf("%.0fs", meta.elapsed),
@@ -170,6 +171,9 @@ func readWorkerMeta(m dispatch.WorkerMarker, now time.Time) workerMeta {
 	}
 	if m.StartedAt > 0 {
 		meta.elapsed = now.Sub(time.Unix(0, int64(m.StartedAt*1e9))).Seconds()
+		if meta.elapsed < 0 {
+			meta.elapsed = 0
+		}
 	}
 	return meta
 }

@@ -46,17 +46,38 @@ func TestStatusLineShowsActiveWorker(t *testing.T) {
 	}
 	text := stripANSI(out.String())
 	for _, want := range []string{
-		"### tok/s", "muse/muse-ember-1.0/max", "stream", "mcode-act-demo",
+		"tok/s", "muse/muse-ember-1.0/max", "stream", "mcode-act-demo",
 	} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("status line missing %q:\n%s", want, text)
 		}
 	}
-	if !strings.HasPrefix(strings.TrimSpace(text), "### tok/s") {
+	if !strings.HasPrefix(strings.TrimSpace(text), "\u26a1 ~181 tok/s") {
 		t.Fatalf("row must start with the worker token rate:\n%s", text)
 	}
-	if strings.Index(text, "muse/muse-ember-1.0/max") < strings.Index(text, "### tok/s") {
+	if strings.Index(text, "muse/muse-ember-1.0/max") < strings.Index(text, "\u26a1 ~181 tok/s") {
 		t.Fatalf("model must follow the token rate:\n%s", text)
+	}
+}
+
+// TestRateColorBrightens checks that a faster worker gets a brighter colour
+// and that an idle worker stays in the theme's muted tone.
+func TestRateColorBrightens(t *testing.T) {
+	pal := Palette{Muted: "\033[38;5;244m"}
+	if got := rateColor(pal, 0); got != pal.Muted {
+		t.Fatalf("idle worker should stay muted, got %q", got)
+	}
+	low, high := rateColor(pal, 10), rateColor(pal, 200)
+	if low == high {
+		t.Fatalf("rate colour does not brighten with throughput: %q", low)
+	}
+	if rateColor(pal, 200) != rateRamp[3] {
+		t.Fatalf("fast worker should use the brightest ramp colour")
+	}
+	if strings.Contains(FormatWorkerLine(pal, dispatch.WorkerMarker{Lane: "muse", Model: "m",
+		Phase: "stream", TokS: 5, StartedAt: float64(time.Now().UnixNano()) / 1e9}, time.Now(),
+		StatusContext{}), "-0s") {
+		t.Fatalf("elapsed must never render as negative zero")
 	}
 }
 
