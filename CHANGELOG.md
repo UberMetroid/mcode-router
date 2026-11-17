@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.11] — 2026-11-17
+
+### Changed
+
+- **The worker row is now just the rate and the model.** It no longer carries the
+  lane prefix, the project directory, the phase or the elapsed time — a worker
+  showed as `⚡ ~181 tok/s · devin-fast/swe-2-flash-max/max · stream · 24s ·
+  mcode-act-demo`, and now shows as `⚡ ~181 tok/s · swe-2-flash-max`. The lane is
+  implied by the model, and the phase and clock were noise on a glanceable row.
+- **Eight colour steps instead of four.** The rate now grades across a deeper
+  green ramp — deep green, green, pure green, then bold mint — with thresholds at
+  15, 40, 80, 150, 300, 500 and 750 tokens per second. A fast worker is now
+  distinguishable from a merely busy one.
+
 ## [1.0.10] — 2026-11-17
 
 ### Changed
@@ -190,6 +204,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.11]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.11
 [1.0.10]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.10
 [1.0.9]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.9
 [1.0.8]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.8
