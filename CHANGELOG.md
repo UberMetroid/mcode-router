@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] — 2026-11-17
+
+### Added
+
+- **Live token rate for the Devin lanes.** The Devin CLI printed its whole answer in
+  one burst at the end of a run, so the worker row sat at `~0 tok/s` for the entire
+  dispatch and the phase never left `wait`. The Devin lanes now run with
+  `--verbosity 3`, which streams the model text as it is produced, and the stream
+  reader samples that text instead of waiting for a line break the Devin CLI never
+  emits. A Devin worker now reports real throughput — `### tok/s ~71 ·
+  devin-fast/swe-2-flash-max/max · stream` — and its phase moves to `stream` as soon
+  as the model writes.
+
+### Changed
+
+- The Devin worker's output now carries the model's intermediate messages alongside
+  its final answer, because the verbose stream is what the router reads. The final
+  answer is unchanged and still ends the output.
+
 ## [1.0.8] — 2026-11-17
 
 ### Changed
@@ -152,6 +171,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.9]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.9
 [1.0.8]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.8
 [1.0.7]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.7
 [1.0.6]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.6
