@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] — 2026-11-17
+
+### Changed
+
+- **The stage routing matrix now names the model.** Every unpinned stage used to render as
+  `auto (quota-aware)`, which stated the policy but not the pick, so the MiniMax Code
+  context hook could not show which worker model a stage would actually use. Unpinned
+  stages now resolve their lane, model and effort against live quota state and render
+  them — for example `act  auto  muse (muse-ember-1.0/max)`. Pinned stages are unchanged.
+
 ## [1.0.2] — 2026-11-17
 
 ### Added
@@ -68,6 +78,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.3]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.3
 [1.0.2]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.2
 [1.0.1]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.1
 [1.0.0]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.0

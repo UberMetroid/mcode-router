@@ -53,8 +53,8 @@ func cliResolveStage(stage string, opts CLIOpts, cwd string, q *fleet.QuotaState
 
 func printStageMatrix(w io.Writer, cwd string, opts CLIOpts, q *fleet.QuotaState) {
 	fmt.Fprintln(w, "\nOODA Stage Routing Matrix (precedence: CLI > --local > --profile > global > auto):")
-	fmt.Fprintf(w, "%-9s %-14s %-34s %s\n", "STAGE", "MODE", "ROUTE", "ROLE")
-	fmt.Fprintln(w, strings.Repeat("-", 96))
+	fmt.Fprintf(w, "%-9s %-14s %-40s %s\n", "STAGE", "MODE", "ROUTE", "ROLE")
+	fmt.Fprintln(w, strings.Repeat("-", 100))
 	roles := map[string]string{
 		"observe": "Read-only recon (--recon)",
 		"orient":  "Root-cause & architecture (--orient)",
@@ -69,14 +69,16 @@ func printStageMatrix(w io.Writer, cwd string, opts CLIOpts, q *fleet.QuotaState
 		sp := cliResolveStage(st, stOpts, cwd, q)
 		mode := sp.Source
 		route := "auto (quota-aware)"
-		if sp.Lane != "auto" {
+		if sp.Lane == "auto" {
+			route = resolveAutoRoute(st, q)
+		} else {
 			mod, eff := nonEmptyOr(sp.Model, "default"), nonEmptyOr(sp.Effort, "default")
 			route = fmt.Sprintf("%s (%s/%s)", sp.Lane, dispatch.ShortModel(mod), eff)
 			if sp.ExpiresAt != nil && *sp.ExpiresAt != "" {
 				route += " [until reset]"
 			}
 		}
-		fmt.Fprintf(w, "%-9s %-14s %-34s %s\n", st, mode, route, roles[st])
+		fmt.Fprintf(w, "%-9s %-14s %-40s %s\n", st, mode, route, roles[st])
 	}
 }
 

@@ -39,6 +39,25 @@ func ResolveCWD(opts CLIOpts, errW io.Writer) (string, bool) {
 	return abs, true
 }
 
+// resolveAutoRoute resolves the lane and model an unpinned stage would use right now.
+func resolveAutoRoute(stage string, q *fleet.QuotaState) string {
+	comp := map[string]string{
+		"observe": "recon", "orient": "deep", "act": "act", "verify": "review",
+	}[stage]
+	sel, err := envelope.SelectProvider(envelope.SelectReq{
+		RequestedLane: "auto", Complexity: comp, Quota: q,
+	})
+	if err != nil || sel.Lane == "" {
+		return "auto (quota-aware)"
+	}
+	spec, serr := envelope.EffectiveLaneSpec(sel.Lane, sel.Info, "", "", comp, "")
+	if serr != nil {
+		return sel.Lane + " (model unresolved)"
+	}
+	return fmt.Sprintf("%s (%s/%s)", sel.Lane,
+		dispatch.ShortModel(spec.DisplayModel), nonEmptyOr(spec.DisplayEffort, "default"))
+}
+
 // DoStandaloneReview runs read-only cross-model review against targetArg.
 func DoStandaloneReview(targetArg string, opts CLIOpts, outW, errW io.Writer) int {
 	if targetArg == "" {
