@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.13] — 2026-11-17
+
+### Changed
+
+- **The status bar shows every running worker.** The custom status line was
+  capped at three rows, so a fourth parallel worker was invisible while it ran.
+  The cap is now six rows, which covers the four parallel workers the Devin
+  SWE Fast lane allows.
+
 ## [1.0.12] — 2026-11-17
 
 ### Fixed
@@ -224,6 +233,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.13]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.13
 [1.0.12]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.12
 [1.0.11]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.11
 [1.0.10]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.10

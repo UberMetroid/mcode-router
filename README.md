@@ -111,7 +111,7 @@ tui:
     display: block
     position: below
     colorMode: ansi
-    maxLines: 3
+    maxLines: 6
     timeoutMs: 2000
     intervalSeconds: 2
 ```
