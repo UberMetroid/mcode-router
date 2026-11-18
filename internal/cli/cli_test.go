@@ -236,7 +236,9 @@ func TestOrientCommand(t *testing.T) {
 		t.Fatalf("expected rogue write during --recon to fail closed, rc=%d err=%q", rc, errS)
 	}
 	writeExecFile(t, binDir, "grok", "exit 1\n")
-	writeExecFile(t, binDir, "mcode", "printf 'softpin pivoted %s\\n' \"$*\"\n")
+	// The mcode lane carries its prompt on stdin, so the fake echoes both argv
+	// and the prompt it reads.
+	writeExecFile(t, binDir, "mcode", "printf 'softpin pivoted %s\\n' \"$*\"\ncat\n")
 	for _, tc := range [][]string{
 		{"softpin pivoted", "--orient", "why", "--files", "a.go"},
 		{"b.go", "--orient", "why", "--files", "b.go"}, {"(inherit)", "--reset-stages", "--local"},

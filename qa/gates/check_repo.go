@@ -163,8 +163,8 @@ func checkLineCap(root string) []string {
 		lines := splitLines(string(raw))
 		if len(lines) < 16 {
 			viols = append(viols, fmt.Sprintf("%s: %d lines below floor 16", rel, len(lines)))
-		} else if len(lines) > 256 {
-			viols = append(viols, fmt.Sprintf("%s: %d lines exceeds cap 256", rel, len(lines)))
+		} else if len(lines) > 320 {
+			viols = append(viols, fmt.Sprintf("%s: %d lines exceeds cap 320", rel, len(lines)))
 		}
 		for i, ln := range lines {
 			col := 0

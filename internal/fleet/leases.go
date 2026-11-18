@@ -180,7 +180,6 @@ func leaseDir() string {
 	base := ScratchDirPath()
 	ldir := filepath.Join(base, "leases")
 	_ = os.MkdirAll(ldir, 0o700)
-	_ = os.Chmod(base, 0o700)
 	_ = os.Chmod(ldir, 0o700)
 	return ldir
 }

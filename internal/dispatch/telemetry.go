@@ -3,6 +3,7 @@ package dispatch
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"path/filepath"
@@ -13,6 +14,9 @@ import (
 
 	"github.com/UberMetroid/mcode-router/internal/fleet"
 )
+
+// maxExportBytes bounds how much of a worker-produced export file is read.
+const maxExportBytes = 1 << 20
 
 var (
 	fusionModelRe = regexp.MustCompile(
@@ -209,8 +213,16 @@ func ParseVibeExport(exportDir string) *fleet.ExportUsage {
 	if exportDir == "" {
 		return nil
 	}
-	raw, err := os.ReadFile(filepath.Join(exportDir, "export.json"))
+	fh, oerr := os.Open(filepath.Join(exportDir, "export.json"))
+	if oerr != nil {
+		return nil
+	}
+	defer fh.Close()
+	raw, err := io.ReadAll(io.LimitReader(fh, maxExportBytes+1))
 	if err != nil {
+		return nil
+	}
+	if len(raw) > maxExportBytes {
 		return nil
 	}
 	var data map[string]any

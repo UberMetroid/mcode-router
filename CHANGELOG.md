@@ -4,6 +4,59 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.14] — 2026-11-17
+
+### Security
+
+- **A read-only worker can no longer quietly change what the router believes.**
+  Eight trust-boundary defects were confirmed by an off-family review and are
+  now closed. Each one has a refusal test that fails against the unfixed code:
+  - A `--task` run against a directory that is not a git repository refused to
+    diff or review its own change. It now refuses outright, unless
+    `--no-review` is given.
+  - A worker that had drifted from its baseline had its output printed before
+    the drift was noticed. The output is now withheld until the drift check
+    passes.
+  - A worker inherited every provider's credentials from the environment. It
+    now carries only the credentials of the provider it is running as.
+  - A worker's prompt sat in the process argument list, where any local user
+    could read it from `/proc`. The mcode lane now carries the prompt on
+    standard input instead, and writes no prompt file at all.
+  - The telemetry export was read without a size bound. The read is now capped,
+    and an oversized export is refused rather than silently truncated.
+  - The shared state roots were not bound to the current user, so another local
+    account could pre-create them and swap the router's cache and slots
+    underneath it. They are now uid-scoped, and a root this user does not own,
+    or one another user can write to, is refused outright.
+  - A cached stage result was served without checking that it still matched the
+    content it claimed. Cache entries now carry a digest, and a mismatch
+    evicts the entry.
+  - A diff was scanned for credentials only on its added lines. Context and
+    removed lines travel to the reviewer too, so they are scanned as well, and
+    six more credential shapes are recognised.
+- **Git state outside the worktree is now watched.** A read-only worker could
+  plant a git hook or rewrite `.git/config` — neither shows up in `git status` —
+  and the hook still ran on the user's next commit. The snapshot now
+  fingerprints the real git directory (the shared one, for a linked worktree),
+  the per-worktree configuration, the hook directories including a configured
+  `core.hooksPath`, and the files hidden by `.gitignore`. The hook walk is
+  bounded in depth, in file count and in reach, because `core.hooksPath` is
+  worker-controlled and could otherwise point at an arbitrary tree.
+- The state root check refuses a root another user can write to rather than
+  tightening its mode, so a path the user chose is never silently
+  re-permissioned.
+
+### Changed
+
+- The file length cap moved from 256 to 320 lines, because every affected
+  package was already at both the function and the directory cap, so the guards
+  had to live beside the code they protect rather than in files of their own.
+
+### Added
+
+- `qa/acceptance` holds fifteen black-box refusal tests that drive the public
+  API only, so a guard cannot be bypassed by reaching into package internals.
+
 ## [1.0.13] — 2026-11-17
 
 ### Changed
@@ -233,6 +286,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.14]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.14
 [1.0.13]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.13
 [1.0.12]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.12
 [1.0.11]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.11

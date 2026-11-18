@@ -111,6 +111,9 @@ func PrintLiveTelemetry(w io.Writer) {
 // It stays silent while no dispatch is running so the bar shows nothing extra.
 func StatusLine(r io.Reader, w io.Writer) int {
 	_ = ReadStatusContext(r)
+	if err := fleet.EnsureStateRoots(); err != nil {
+		return 0
+	}
 	active := ReadActiveWorkers()
 	if len(active) == 0 {
 		return 0

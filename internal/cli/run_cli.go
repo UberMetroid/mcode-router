@@ -212,6 +212,10 @@ func RunCLI(prog string, argv []string, outW, errW io.Writer) int {
 		fmt.Fprintf(outW, "mcode-router v%s\n", fleet.Version)
 		return 0
 	}
+	if err := fleet.EnsureStateRoots(); err != nil {
+		fmt.Fprintf(errW, "error: %v\n", err)
+		return 2
+	}
 	if opts.Status || opts.Discover || opts.Live {
 		return ReportStatus(outW, opts.Discover, opts)
 	}

@@ -95,6 +95,9 @@ func snapshotGit(root string, rem *int64, skipRt func(string) bool) map[string]s
 	}
 	rs := sha256.Sum256([]byte(refs))
 	snap, count := map[string]string{"@HEAD": head, "@REFS": fmt.Sprintf("%x", rs[:16])}, 0
+	for k, v := range gitExtraState(root, rem, skipRt) {
+		snap[k] = v
+	}
 	parts := strings.Split(raw, "\x00")
 	for i := 0; i < len(parts); i++ {
 		rec := parts[i]
@@ -121,6 +124,53 @@ func snapshotGit(root string, rem *int64, skipRt func(string) bool) map[string]s
 		}
 	}
 	return snap
+}
+
+// gitExtraState captures the git state that a plain status never reports:
+// ignored files, and the metadata that lives outside the worktree. A worker
+// that plants a hook or rewrites config there leaves no trace in git status,
+// yet the hook still runs on the user's next commit.
+func gitExtraState(root string, rem *int64, skipRt func(string) bool) map[string]string {
+	out := map[string]string{}
+	ignored, ok := gitOutOK(root, "ls-files", "-z", "--others", "--ignored", "--exclude-standard")
+	if !ok {
+		out["@ERR"] = "ignored-listing-failed"
+		return out
+	}
+	names, total := make([]string, 0, 64), 0
+	nameHash := sha256.New()
+	for _, ln := range strings.Split(ignored, "\x00") {
+		rel, rerr := worktree.NormalizeRelPath(ln)
+		if rerr != nil || rel == "" || worktree.IsIgnoredArtifact(rel) {
+			continue
+		}
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		if skipRt(full) {
+			continue
+		}
+		total++
+		nameHash.Write([]byte(rel + "\x00"))
+		if len(names) >= 1024 {
+			continue
+		}
+		// Content, not just size and mtime: a timestamp-restoring rewrite is drift.
+		per := int64(8 << 10)
+		if fp := fileFingerprint(full, &per); fp != "missing" {
+			names = append(names, rel+":"+fp)
+		}
+	}
+	out["@IGNORED"] = fmt.Sprintf("%d:%x:%x", total, nameHash.Sum(nil),
+		sha256.Sum256([]byte(strings.Join(names, "\n"))))
+	common, work := gitDirs(root)
+	if common == "" {
+		out["@ERR"] = "git-dir-failed"
+		return out
+	}
+	out["@GITCFG"] = fileFingerprint(filepath.Join(common, "config"), rem)
+	out["@GITCFGWT"] = fileFingerprint(filepath.Join(common, "config.worktree"), rem)
+	out["@GITCFGWK"] = fileFingerprint(filepath.Join(work, "config.worktree"), rem)
+	gitHookState(root, common, rem, out)
+	return out
 }
 
 func snapshotDir(dir string, rem *int64, skipRt func(string) bool) map[string]string {
@@ -186,11 +236,9 @@ func recordGuardAnchors(targetDir string, snap map[string]string, rem *int64, sk
 	dirs := [][2]string{{"workspaces", filepath.Join(filepath.Dir(fleet.QuotaFilePath("")), "workspaces")},
 		{"plugin", fleet.PluginRootPath()}}
 	if home != "" {
-		for _, f := range []string{".bashrc", ".bash_profile", ".profile", ".zshrc", ".zprofile", ".gitconfig"} {
-			addFile("home/"+f, filepath.Join(home, f), false)
-		}
-		for _, f := range []string{".netrc", ".git-credentials"} {
-			addFile("home/"+f, filepath.Join(home, filepath.FromSlash(f)), true)
+		for _, f := range []string{".bashrc", ".bash_profile", ".profile", ".zshrc", ".zprofile",
+			".gitconfig", ".netrc", ".git-credentials"} {
+			addFile("home/"+f, filepath.Join(home, f), f == ".netrc" || f == ".git-credentials")
 		}
 		dirs = append(dirs, [2]string{"agents", filepath.Join(home, ".agents")})
 	}

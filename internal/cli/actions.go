@@ -168,8 +168,6 @@ func reviewAndTrackTask(
 					rev.Lane, rev.Verdict, rev.Output, rev.Verdict)
 			}
 		}
-	} else if !opts.NoReview {
-		fmt.Fprintln(outW, "note: skipped cross-model diff review (working directory is not a git repository)")
 	}
 	if res.ExitCode != 0 {
 		envelope.RecordMismatch(cwd, files, res.Lane, fmt.Sprintf("exited %d", res.ExitCode))
@@ -206,6 +204,10 @@ func DoSingleTask(opts CLIOpts, outW, errW io.Writer) int {
 	if fleet.TryRepoRoot(cwd) != "" {
 		baseline = worktree.DirtyState(cwd)
 		baseRef = verify.HeadRef(cwd)
+	} else if !opts.NoReview {
+		fmt.Fprintln(errW, "refusing: --task needs a git repository target so the change can be "+
+			"diffed and reviewed (use --no-review to run without verification)")
+		return 1
 	}
 	actSt := cliResolveStage("act", opts, cwd, nil)
 	avoid := map[string]bool{}

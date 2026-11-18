@@ -2,10 +2,12 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/UberMetroid/mcode-router/internal/cli"
+	"github.com/UberMetroid/mcode-router/internal/fleet"
 	"github.com/UberMetroid/mcode-router/internal/install"
 	"github.com/UberMetroid/mcode-router/internal/ui"
 )
@@ -13,6 +15,10 @@ import (
 func dispatchSubcommand(prog string, args []string) int {
 	switch prog {
 	case "mcode-router-mcp", "ooda-mcp":
+		if err := fleet.EnsureStateRoots(); err != nil {
+			fmt.Fprintln(os.Stderr, "error: "+err.Error())
+			return 2
+		}
 		return mcpServe(os.Stdin, os.Stdout)
 	}
 	if len(args) > 0 {

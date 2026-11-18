@@ -24,6 +24,17 @@ type CacheEntry struct {
 	Verdict string `json:"verdict,omitempty"`
 	Output  string `json:"output"`
 	SavedAt int64  `json:"saved_at"`
+	// Digest binds the entry to its own content. It is unkeyed, so it catches
+	// accidental edits and half-written files, not a determined forger: anyone
+	// who can write the cache file can also recompute the digest over it.
+	Digest string `json:"digest"`
+}
+
+// cacheDigest binds a cache entry to its content.
+func cacheDigest(e CacheEntry) string {
+	h := sha256.New()
+	fmt.Fprintf(h, "%s|%s|%s|%s|%s|%d|%s", e.Stage, e.Lane, e.Model, e.Effort, e.Verdict, e.SavedAt, e.Output)
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
 func cacheEnabled(noCache bool) bool {
@@ -60,6 +71,10 @@ func LoadStageCache(key string, noCache bool) (CacheEntry, bool) {
 	}
 	var e CacheEntry
 	if json.Unmarshal(raw, &e) != nil || e.SavedAt <= 0 || strings.TrimSpace(e.Output) == "" {
+		_ = os.Remove(path)
+		return CacheEntry{}, false
+	}
+	if e.Digest == "" || e.Digest != cacheDigest(e) {
 		_ = os.Remove(path)
 		return CacheEntry{}, false
 	}
@@ -103,6 +118,7 @@ func SaveStageCache(key string, e CacheEntry, noCache bool) {
 		return
 	}
 	e.SavedAt = time.Now().Unix()
+	e.Digest = cacheDigest(e)
 	dir := filepath.Join(fleet.ScratchDirPath(), "cache")
 	_ = fleet.AtomicWriteJSON(filepath.Join(dir, key+".json"), e, true, true)
 	pruneStageCache(dir)

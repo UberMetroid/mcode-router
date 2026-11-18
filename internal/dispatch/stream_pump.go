@@ -189,6 +189,9 @@ func runStreamProcess(req ExecReq, built BuiltCmd, timeoutSec int) ExecRes {
 	defer cancel()
 	cmd := exec.CommandContext(ctx, built.Argv[0], built.Argv[1:]...)
 	cmd.Dir, cmd.Env, cmd.WaitDelay = req.Worktree, built.Env, 2*time.Second
+	if built.Stdin != "" {
+		cmd.Stdin = strings.NewReader(built.Stdin)
+	}
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	var mu sync.Mutex
 	var reaped bool

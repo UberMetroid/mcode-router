@@ -172,12 +172,13 @@ func runReadOnlyStage(stage, prompt string, opts CLIOpts, outW, errW io.Writer) 
 	}
 	fmt.Fprintf(errW, "[OODA:%s lane=%s model=%s effort=%s %.1fs exit=%d]\n",
 		banner, res.Lane, res.Model, res.Effort, res.DurationS, res.ExitCode)
-	if res.Output != "" {
-		fmt.Fprintln(outW, res.Output)
-	}
 	if drift := verify.SnapshotDrift(preSnap, verify.SnapshotRepo(cwd)); len(drift) > 0 {
 		fmt.Fprintf(errW, "[P0] zero-trust: read-only %s modified files: %s\n", slotName, strings.Join(drift, ", "))
+		fmt.Fprintln(errW, "[P0] zero-trust: worker output withheld")
 		return 1
+	}
+	if res.Output != "" {
+		fmt.Fprintln(outW, res.Output)
 	}
 	if res.ExitCode == 0 && !res.TimedOut {
 		verify.SaveStageCache(cKey, verify.CacheEntry{

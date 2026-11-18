@@ -25,7 +25,7 @@ type HygieneFinding struct {
 
 var (
 	placeholderRe   = regexp.MustCompile(`(?i)(?:EXAMPLE|DUMMY|REDACTED|FAKE)`)
-	hunkHdrRe       = regexp.MustCompile(`^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@`)
+	hunkHdrRe       = regexp.MustCompile(`^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@`)
 	curlWgetRe      = regexp.MustCompile(`\b(?:cu` + `rl|wg` + `et)\b`)
 	httpFetchRe     = regexp.MustCompile(`\bht` + `tp://([^\s/"')` + "`" + `]+)`)
 	skipHygieneDirs = map[string]bool{".git": true, ".worktrees": true, "bin": true, "node_modules": true}
@@ -36,6 +36,10 @@ var (
 	pkPat           = "-----BEGIN " + "(?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?" + "PRIVATE " + "KEY-----"
 	akPat           = `\bs` + `k-[A-Za-z0-9_-]{20,}|\bxo` + `x[baprs]-[A-Za-z0-9-]{16,}|\bAK` + `IA[0-9A-Z]{16}\b`
 	pipePat         = `\b(?:cu` + `rl|wg` + `et)\b[^|\n]*\|\s*(?:sudo\s+)?(?:ba|z|da|k)?sh\b`
+	urlCredPat      = `(?i)\b(?:postgres|postgresql|mysql|mongodb|redis|amqp|ftp|sftp)` +
+		`://[^:\s/]+:[^@\s/]+@`
+	credAssignPat   = `(?i)\b(?:pass(?:word|wd)?|secret|api[_-]?key|auth[_-]?token|` +
+		`access[_-]?token|client[_-]?secret)\s*[:=]\s*["']?[^"'\s]{6,}`
 	p0Rules         = []struct {
 		name string
 		re   *regexp.Regexp
@@ -43,6 +47,12 @@ var (
 		{"private-key", regexp.MustCompile(pkPat)},
 		{"github-token", regexp.MustCompile("gh" + "(?:p_|[ousr]_)[A-Za-z0-9]{20,}|github" + "_pat_[A-Za-z0-9_]{20,}")},
 		{"api-key", regexp.MustCompile(akPat)},
+		{"url-credential", regexp.MustCompile(urlCredPat)},
+		{"password-assignment", regexp.MustCompile(credAssignPat)},
+		{"gitlab-token", regexp.MustCompile(`\bglpat-[A-Za-z0-9_-]{16,}`)},
+		{"npm-token", regexp.MustCompile(`\bnpm_[A-Za-z0-9]{30,}`)},
+		{"jwt", regexp.MustCompile(`\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{5,}`)},
+		{"aws-secret-key", regexp.MustCompile(`(?i)\baws_secret_access_key\s*[:=]\s*["']?[A-Za-z0-9/+=]{40}`)},
 	}
 	p1Rules = []struct {
 		name, detail string
@@ -120,7 +130,7 @@ p0Loop:
 
 func scanDiffSection(part string, seen, deleted map[string]bool) []HygieneFinding {
 	lines := strings.Split(strings.ReplaceAll(part, "\r\n", "\n"), "\n")
-	filePath, isDel, inHunk, curLn, out := "", false, false, 0, []HygieneFinding(nil)
+	filePath, isDel, inHunk, curLn, oldLn, out := "", false, false, 0, 0, []HygieneFinding(nil)
 	if idx := strings.LastIndex(lines[0], " b/"); idx >= 0 {
 		filePath, _ = worktree.NormalizeRelPath(strings.TrimSpace(lines[0][idx+3:]))
 	}
@@ -129,19 +139,30 @@ func scanDiffSection(part string, seen, deleted map[string]bool) []HygieneFindin
 			isDel = true
 		} else if !inHunk && strings.HasPrefix(ln, "+++ b/") {
 			filePath, _ = worktree.NormalizeRelPath(strings.TrimSpace(ln[6:]))
-		} else if m := hunkHdrRe.FindStringSubmatch(ln); len(m) == 2 {
-			curLn, _ = strconv.Atoi(m[1])
+		} else if m := hunkHdrRe.FindStringSubmatch(ln); len(m) == 3 {
+			oldLn, _ = strconv.Atoi(m[1])
+			curLn, _ = strconv.Atoi(m[2])
 			inHunk = true
 		} else if inHunk && strings.HasPrefix(ln, "+") {
 			out = append(out, scanLine(filePath, curLn, ln[1:], false)...)
 			curLn++
 		} else if inHunk && strings.HasPrefix(ln, " ") {
+			// Context lines travel to the reviewer too, so a credential on an
+			// unchanged line crosses the same boundary as one on an added line.
+			out = append(out, scanLine(filePath, curLn, ln[1:], false)...)
 			curLn++
+			oldLn++
+		} else if inHunk && strings.HasPrefix(ln, "-") {
+			// A removed line still rides along in the patch that reaches the
+			// reviewer, so deleting a credential does not un-leak it. It is
+			// numbered against the old file, which is where it used to live.
+			out = append(out, scanLine(filePath, oldLn, ln[1:], false)...)
+			oldLn++
 		}
 	}
 	if filePath != "" && isDel {
 		deleted[filePath] = true
-		return nil
+		return out
 	}
 	if filePath != "" {
 		seen[filePath] = true
