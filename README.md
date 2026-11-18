@@ -48,8 +48,10 @@ The installer wires five things into MiniMax Code:
 
 Every stage resolves through **CLI flag → repo-local pin → profile → global pin →
 automatic**. Soft-pin failover moves down the lane priority chain on a `429` or cooldown
-and scrubs the primary lane's model and effort overrides. `verify` always excludes the
-authoring model family, even when pinned identically.
+and scrubs the primary lane's effort override; a model whose family matches the fallback
+lane is kept — `swe-2-high` stays `swe-2-high` across the devin lanes — while a model the
+fallback lane cannot serve is still scrubbed, so no lane ever receives a foreign model id.
+`verify` always excludes the authoring model family, even when pinned identically.
 
 ## The Fleet
 
@@ -65,6 +67,28 @@ authoring model family, even when pinned identically.
 
 `devin-fusion` is paid credits and never runs unattended or in review. `muse` is skipped
 when a pay-as-you-go API key is active. MiniMax Code is the only supported host.
+
+## Presets
+
+A preset writes all four stage pins at once. `--profile <name>` on a stage call,
+`--set-stage preset=<name>` and the interactive `--select` selector all apply them.
+
+| Preset | observe | orient | act | verify |
+|---|---|---|---|---|
+| `auto` | auto | auto | auto | auto |
+| `conserve` | devin-fast | devin-pro | devin-pro, devin-fast | mcode |
+| `deep` | devin-fast | muse, grok (xhigh) | devin-pro, muse | mcode |
+| `devin` | devin-fast | devin-pro | devin-pro | mcode |
+| `fusion` | mcode (`M3.1-Flash`) | mcode (`M3.1-Flash`, max) | devin-fast (`swe-2-flash-high`) | mcode (`M3.1-Flash`, max) |
+| `grok` | devin-fast | grok | grok | mcode |
+| `mcode` | mcode | mcode | mcode | devin-fast |
+| `muse` | devin-fast | muse | muse | mcode |
+| `mistral` | devin-fast | mistral | mistral | mcode |
+
+`fusion` is the first preset that names a **model** per stage instead of only a lane, so a
+fusion stage keeps its model across a same-family failover. It has no `ooda-fusion` agent
+profile — the plugin package holds eight agent files, the house-law ceiling — so drive it
+with `--profile fusion` or the stage selector.
 
 ## MCP Tools
 
@@ -185,6 +209,10 @@ config/quota.default.json     # packaged fleet + quota defaults
   nonzero exit, `SKIPPED`, `UNKNOWN`, or `[P0-3]` findings, review rotates off-family
   (`mcode → devin-fast → devin-pro → grok → mistral → muse`) or fails nonzero.
 - **Worker guardrails.** Worker lanes reject `gemini*` and `orchestrator*` models outright.
+- **Model identity survives a failover.** A pinned model whose family matches the fallback
+  lane is kept, so a stage does not silently change models when its lane cools down. Models
+  whose reasoning is a variant rather than an effort level — `MiniMax-M3` — are dispatched
+  without `--effort`, which the CLI rejects for them.
 - **Recursion guard.** Workers run with `MCODE_ROUTER_DEPTH>=1` and `ROUTER_DEPTH>=1`, which
   blocks nested dispatch.
 - **Read-only enforcement.** Observe and orient stages snapshot the repository before and
@@ -197,7 +225,7 @@ The repository is machine-checked by `make all`:
 | Gate | Rule |
 |---|---|
 | `make portable` | No third-party imports, no embedded credentials, no `sh -c`/`bash -c` |
-| `make line-cap` | Every `.go` file is 16–256 lines, every line ≤ 128 columns |
+| `make line-cap` | Every `.go` file is 16–320 lines, every line ≤ 128 columns |
 | `make density` | At most 8 entries per directory under `cmd/`, `internal/`, `plugins/`, `qa/` |
 | `make vocab` | No banned drawer filenames; identifiers ≤ 32 characters |
 | `make shape` | ≤ 8 function declarations per file, ≤ 8 params, ≤ 64 body lines, ≤ 4 nesting levels |

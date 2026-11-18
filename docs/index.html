@@ -453,7 +453,7 @@
   <main id="top">
     <section class="hero">
       <div class="wrap">
-        <span class="eyebrow">mcode-router v1.0.0 &bull; Static Go 1.22+ (CGO_ENABLED=0) &bull; MCP Server</span>
+        <span class="eyebrow">mcode-router v1.0.16 &bull; Static Go 1.22+ (CGO_ENABLED=0) &bull; MCP Server</span>
         <h1>Turn one MiniMax Code session into a<br><span>token-routed agent fleet.</span></h1>
         <p class="lead">
           <strong>UberMetroid/mcode-router</strong> is a zero-dependency static Go OODA engine that plugs into
@@ -467,7 +467,7 @@
         </div>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#quickstart">Install &amp; Quickstart</a>
-          <a class="btn" href="https://github.com/UberMetroid/mcode-router/releases/latest">Release Binaries (v1.0.0)</a>
+          <a class="btn" href="https://github.com/UberMetroid/mcode-router/releases/latest">Release Binaries (v1.0.16)</a>
           <a class="btn" href="#mcp">MCP Server</a>
         </div>
         <div class="telemetry-strip">
@@ -637,6 +637,15 @@ lane resolution  : quota state + capability regime + UTC off-peak tariff
             <p>
               The verify stage excludes every model family that wrote or attempted the diff and rotates families
               on rejection or mismatch. Hard cap of 3 act loops.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge b-cyan">Identity</span>
+            <h3>Pinned Models Survive a Failover</h3>
+            <p>
+              When a pinned stage falls over to another lane, a model whose family matches the fallback lane is
+              kept and a foreign one is scrubbed. A stage never silently changes models because its lane cooled
+              down, and a model whose reasoning is a variant is dispatched without an effort it cannot take.
             </p>
           </div>
           <div class="card">
@@ -979,6 +988,7 @@ mcode-router --status    # OODA stage matrix, fleet tiers, resets &amp; skills
 mcode-router --usage     # per-lane 5h/24h/7d/30d windows &amp; UTC tariffs
 mcode-router --set-stage act=grok --effort xhigh
 mcode-router --set-stage preset=deep   # or --reset-stages
+mcode-router --set-stage preset=fusion # per-stage models, kept across a failover
 mcode-router --discover  # refresh live CLI model probes
 mcode-router --probe     # minimal 1-token prompt canaries
 mcode-router --recon "Map auth flow and callers"

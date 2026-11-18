@@ -4,7 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.16] — 2026-11-18
+
+### Added
+
+- **A `fusion` preset, and presets that can name a model per stage.** The preset
+  table moved out of `stages.go` into `auto_select.go`, next to the rest of the
+  automatic selection, and it grew a `fusion` preset: observe and orient on
+  `minimax/MiniMax-M3.1-Flash`, act on `devin-fast` with `swe-2-flash-high`, and
+  verify on `mcode` with `M3.1-Flash` at max effort. A preset may now pin a model
+  per stage, not only a lane, and the stage selector and the `lane` skill list
+  the new preset. Moving the table also takes `stages.go` from 319 lines to 303.
 
 ### Fixed
 
@@ -347,6 +357,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.16]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.16
 [1.0.15]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.15
 [1.0.14]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.14
 [1.0.13]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.13
