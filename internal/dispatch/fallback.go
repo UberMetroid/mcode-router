@@ -24,7 +24,7 @@ func runTaskAttempt(st *taskState, sel envelope.SelectRes, lease *os.File) (Exec
 		rawEff = req.Effort
 	}
 	if st.canonReq != "auto" && prim != "" && sel.Lane != prim {
-		rawMod, rawEff = "", ""
+		rawMod, rawEff = envelope.FallbackModel(rawMod, sel.Lane), ""
 	}
 	spec, err := envelope.EffectiveLaneSpec(sel.Lane, sel.Info, rawMod, rawEff, req.Task.Complexity, "")
 	if err != nil {
