@@ -87,7 +87,7 @@ func tuiStageRows(cwd string, local bool, q *fleet.QuotaState) []string {
 		}
 		rows = append(rows, fmt.Sprintf("%-8s -> %s", st, lbl))
 	}
-	return append(rows, "Apply Preset (auto/conserve/deep/devin/grok/mcode/muse/mistral)",
+	return append(rows, "Apply Preset (auto/conserve/deep/devin/fusion/grok/mcode/muse/mistral)",
 		"Reset All Stages in Scope to auto", "Save & Exit")
 }
 
@@ -99,7 +99,7 @@ func tuiApplyAction(
 	}
 	p, lbl := worktree.StagePatch{Stage: "all", Lane: "auto", Local: local, Cwd: cwd}, "✓ Reset all stages to auto"
 	if idx == nSt {
-		names := []string{"auto", "conserve", "deep", "devin", "grok", "mcode", "muse", "mistral"}
+		names := []string{"auto", "conserve", "deep", "devin", "fusion", "grok", "mcode", "muse", "mistral"}
 		pi, pact := tuiPick(in, out, "Apply Workflow Preset", "", names)
 		if pact != "select" || pi < 0 {
 			return "", nil

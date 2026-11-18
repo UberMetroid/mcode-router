@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/UberMetroid/mcode-router/internal/fleet"
 )
 
 var (
@@ -144,4 +146,36 @@ func ResolveTaskSkills(explicit []string, prompt string, files []string, cwd str
 		return nil
 	}
 	return AutoMatchSkills(prompt, files, cwd)
+}
+
+// PresetStages maps named presets (e.g. conserve, deep, fusion) to 4-stage maps.
+func PresetStages(name string) (map[string]fleet.StageRoute, bool) {
+	mk := func(obs, ori, act, ver string, oriEff, verEff *string, mods ...string) map[string]fleet.StageRoute {
+		modAt := func(i int) *string {
+			if i < len(mods) && mods[i] != "" {
+				return fleet.Ptr(mods[i])
+			}
+			return nil
+		}
+		return map[string]fleet.StageRoute{
+			"observe": {Lane: obs, Model: modAt(0)},
+			"orient":  {Lane: ori, Effort: oriEff, Model: modAt(1)},
+			"act":     {Lane: act, Model: modAt(2)},
+			"verify":  {Lane: ver, Effort: verEff, Model: modAt(3)},
+		}
+	}
+	res, ok := map[string]map[string]fleet.StageRoute{
+		"auto":     mk("auto", "auto", "auto", "auto", nil, nil),
+		"devin":    mk("devin-fast", "devin-pro", "devin-pro", "mcode", nil, nil),
+		"conserve": mk("devin-fast", "devin-pro", "devin-pro,devin-fast", "mcode", nil, nil),
+		"deep":     mk("devin-fast", "muse,grok", "devin-pro,muse", "mcode", fleet.Ptr("xhigh"), nil),
+		"mcode":    mk("mcode", "mcode", "mcode", "devin-fast", nil, nil),
+		"grok":     mk("devin-fast", "grok", "grok", "mcode", nil, nil),
+		"muse":     mk("devin-fast", "muse", "muse", "mcode", nil, nil),
+		"mistral":  mk("devin-fast", "mistral", "mistral", "mcode", nil, nil),
+		"fusion": mk("mcode", "mcode", "devin-fast", "mcode", fleet.Ptr("max"), fleet.Ptr("max"),
+			"minimax/MiniMax-M3.1-Flash", "minimax/MiniMax-M3.1-Flash",
+			"swe-2-flash-high", "minimax/MiniMax-M3.1-Flash"),
+	}[strings.TrimPrefix(strings.ToLower(strings.TrimSpace(name)), "ooda-")]
+	return res, ok
 }

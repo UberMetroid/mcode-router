@@ -131,7 +131,7 @@ func TestStagesExpiryPresetAndRefusal(t *testing.T) {
 		t.Fatalf("expected UntilReset to set ExpiresAt, err=%v got=%+v", err, stMap["orient"])
 	}
 	_ = wake
-	for _, k := range []string{"auto", "conserve", "deep", "devin", "grok", "mcode", "muse", "mistral"} {
+	for _, k := range []string{"auto", "conserve", "deep", "devin", "fusion", "grok", "mcode", "muse", "mistral"} {
 		if pre, ok := PresetStages("ooda-" + k); !ok || len(pre) != 4 {
 			t.Fatalf("missing preset %s", k)
 		}

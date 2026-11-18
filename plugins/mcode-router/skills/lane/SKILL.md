@@ -24,7 +24,7 @@ and models used across OODA stages (`observe`, `orient`, `act`, `verify`).
 
    - **Prompt 1 — what and where:**
      - `Action`: `Change a single OODA stage (observe / orient / act / verify)`,
-       `Apply a workflow preset (auto / conserve / deep / devin / grok / mcode /
+       `Apply a workflow preset (auto / conserve / deep / devin / fusion / grok / mcode /
        muse / mistral)`, or `Reset all stages to auto`
      - `Scope`: `Global (~/.local/state/mcode-router/quota.json)` or
        `Repo-local (this workspace only)`

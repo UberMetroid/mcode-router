@@ -26,22 +26,6 @@ type StagePatch struct {
 	UntilReset, Local                          bool
 }
 
-// PresetStages maps named presets (e.g. conserve, deep, devin) to 4-stage maps.
-func PresetStages(name string) (map[string]fleet.StageRoute, bool) {
-	mk := func(obs, ori, act, ver string, oriEff *string) map[string]fleet.StageRoute {
-		return map[string]fleet.StageRoute{"observe": {Lane: obs}, "orient": {Lane: ori, Effort: oriEff},
-			"act": {Lane: act}, "verify": {Lane: ver}}
-	}
-	res, ok := map[string]map[string]fleet.StageRoute{
-		"auto": mk("auto", "auto", "auto", "auto", nil), "devin": mk("devin-fast", "devin-pro", "devin-pro", "mcode", nil),
-		"conserve": mk("devin-fast", "devin-pro", "devin-pro,devin-fast", "mcode", nil),
-		"deep":     mk("devin-fast", "muse,grok", "devin-pro,muse", "mcode", fleet.Ptr("xhigh")),
-		"mcode":    mk("mcode", "mcode", "mcode", "devin-fast", nil), "grok": mk("devin-fast", "grok", "grok", "mcode", nil),
-		"muse": mk("devin-fast", "muse", "muse", "mcode", nil), "mistral": mk("devin-fast", "mistral", "mistral", "mcode", nil),
-	}[strings.TrimPrefix(strings.ToLower(strings.TrimSpace(name)), "ooda-")]
-	return res, ok
-}
-
 // WorkspaceStagesPath resolves the out-of-git stage override file for cwd.
 func WorkspaceStagesPath(cwd string) string {
 	root, _ := filepath.Abs(strings.TrimSpace(cwd))
