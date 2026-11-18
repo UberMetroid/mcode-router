@@ -27,7 +27,8 @@ func TestPaletteForNormalizesNames(t *testing.T) {
 func TestPaletteFieldsAreSet(t *testing.T) {
 	for _, name := range []string{"dark", "light", "tokyo night", "halloween"} {
 		p := PaletteFor(name)
-		if p.Muted == "" || p.TUIAccent == "" || p.TUIHeader == "" || p.TUIOK == "" || p.FleetLow == "" {
+		if p.Muted == "" || p.TUIAccent == "" || p.TUIHeader == "" || p.TUIOK == "" ||
+			p.FleetLow == "" || p.StatusAccent == "" {
 			t.Fatalf("palette %q has empty fields: %+v", name, p)
 		}
 		if !strings.HasPrefix(p.TUIHeader, "\033[") || !strings.HasSuffix(p.TUIHeader, "m") {

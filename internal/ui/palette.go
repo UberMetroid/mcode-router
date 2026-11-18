@@ -16,6 +16,10 @@ type Palette struct {
 	TUIHeader string
 	TUIOK     string
 	FleetLow  string
+	// StatusAccent colours the model name in the MiniMax Code status line.
+	// It carries no bold attribute: the host drops any SGR sequence it does
+	// not recognise, and bold is not one it keeps.
+	StatusAccent string
 }
 
 // palette specs are muted, accent, header, ok, fleet-low color numbers.
@@ -35,11 +39,13 @@ var palettes = func() map[string]Palette {
 	out["dark"] = Palette{
 		Name: "dark", Muted: fg(244), TUIAccent: "\033[1;36m",
 		TUIHeader: bd(117), TUIOK: bd(78), FleetLow: bd(203),
+		StatusAccent: fg(36),
 	}
 	for name, spec := range specs {
 		out[name] = Palette{
 			Name: name, Muted: fg(spec[0]), TUIAccent: bd(spec[1]),
 			TUIHeader: bd(spec[2]), TUIOK: bd(spec[3]), FleetLow: bd(spec[4]),
+			StatusAccent: fg(spec[1]),
 		}
 	}
 	return out

@@ -4,6 +4,26 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.12] — 2026-11-17
+
+### Fixed
+
+- **The fastest workers now show their colour.** MiniMax Code filters the custom
+  status line through its own SGR parser, and it keeps only reset, default,
+  standard and 256-colour parameters — it drops any other sequence whole. The
+  top four ramp steps were bold (`1;38;5;47` through `1;38;5;50`), so every
+  worker running above 150 tokens per second rendered its rate with **no colour
+  at all**: the quickest workers looked plain while merely busy ones looked
+  green. The ramp is now plain 256-colour throughout, running from deep green
+  through neon green and mint to white, and the model name is coloured with a
+  plain foreground too.
+- The model name on the worker row lost its accent colour for the same reason.
+
+### Added
+
+- A regression test mirrors MiniMax Code's SGR filter and fails if the status
+  line ever emits a colour the host would strip.
+
 ## [1.0.11] — 2026-11-17
 
 ### Changed
@@ -204,6 +224,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.12]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.12
 [1.0.11]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.11
 [1.0.10]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.10
 [1.0.9]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.9

@@ -3,16 +3,20 @@ package ui
 // rateBolt is the high-voltage sign MiniMax Code puts in front of a token rate.
 const rateBolt = "\u26a1"
 
-// rateRamp grades worker throughput from deep green to pale mint.
+// rateRamp grades worker throughput from deep green to white.
+// Every step is a plain 256-colour foreground on purpose: MiniMax Code keeps
+// only the SGR parameters it recognises and drops any other sequence whole,
+// so a bold colour would take the rate row's colour with it and the fastest
+// workers would render unstyled.
 var rateRamp = []string{
 	"\033[38;5;28m",
 	"\033[38;5;34m",
 	"\033[38;5;40m",
 	"\033[38;5;46m",
-	"\033[1;38;5;47m",
-	"\033[1;38;5;48m",
-	"\033[1;38;5;49m",
-	"\033[1;38;5;50m",
+	"\033[38;5;82m",
+	"\033[38;5;84m",
+	"\033[38;5;157m",
+	"\033[38;5;231m",
 }
 
 // rateThresholds are the exclusive upper bounds of each ramp step.

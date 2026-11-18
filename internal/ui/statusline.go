@@ -136,7 +136,7 @@ func FormatWorkerLine(pal Palette, m dispatch.WorkerMarker, now time.Time) strin
 	}
 	parts := []string{
 		rateColor(pal, meta.rate) + rateBolt + " " + rate + " tok/s" + ansiReset,
-		pal.TUIAccent + dispatch.ShortModel(m.Model) + ansiReset,
+		pal.StatusAccent + dispatch.ShortModel(m.Model) + ansiReset,
 	}
 	return strings.Join(parts, " · ")
 }
