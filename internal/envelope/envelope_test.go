@@ -40,20 +40,15 @@ func TestRegimesAndOrder(t *testing.T) {
 	}
 	dq := fleet.DefaultQuotaData()
 	rev, err := BuildCandidateOrder("auto", "review", dq, nil, map[string]bool{"swe-2": true})
-	if err != nil {
-		t.Fatalf("BuildCandidateOrder failed: %v", err)
-	}
-	if len(rev) == 0 || rev[0] != "mcode" {
-		t.Fatalf("expected mcode first in review order, got %v", rev)
+	if err != nil || len(rev) == 0 || rev[0] != "mcode" {
+		t.Fatalf("expected mcode first in review order, got %v err=%v", rev, err)
 	}
 	t.Setenv("MCODE_ROUTER_DEPTH", "0")
 	t.Setenv("ROUTER_DEPTH", "0")
 	t.Setenv("ROUTER_SCRATCH_DIR", t.TempDir())
-	sel, err := SelectProvider(SelectReq{
-		RequestedLane: "auto", Complexity: "review", Quota: dq,
+	sel, err := SelectProvider(SelectReq{RequestedLane: "auto", Complexity: "review", Quota: dq,
 		Exclude: map[string]bool{"mcode": true}, AvoidFamilies: map[string]bool{"swe-2": true},
-		ResolveCLI: func(string) string { return "/opt/fake/cli" },
-	})
+		ResolveCLI: func(string) string { return "/opt/fake/cli" }})
 	if err != nil || sel.Lane != "grok" {
 		t.Fatalf("expected grok selection, got %+v (%v)", sel, err)
 	}
@@ -239,5 +234,22 @@ func TestEWMAHealthDemotion(t *testing.T) {
 	}
 	if q, ord := rec(false); *q.Providers["mcode"].HealthEWMA < 0.55 || ord[0] != "mcode" {
 		t.Fatalf("clean run should recover >= 0.55 to head: ord=%v", ord)
+	}
+}
+
+func TestEffortAndFamilyGuards(t *testing.T) {
+	if SupportsEffort("mcode", "minimax/MiniMax-M3") {
+		t.Fatal("MiniMax-M3 must not take effort")
+	}
+	if m := FallbackModel("swe-2-high", "devin-pro"); m != "swe-2-high" {
+		t.Fatalf("same-family model dropped: %q", m)
+	}
+	if m := FallbackModel("minimax/MiniMax-M3", "devin-fast"); m != "" {
+		t.Fatalf("foreign model kept: %q", m)
+	}
+	spec, err := EffectiveLaneSpec("mcode", testLane("mcode", "active", nil, nil),
+		"minimax/MiniMax-M3", "max", "act", t.TempDir())
+	if err != nil || spec.ArgvEffort != "" {
+		t.Fatalf("effort leaked to MiniMax-M3: %+v %v", spec, err)
 	}
 }

@@ -4,6 +4,27 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **A pinned model now survives a same-family failover.** When a pinned stage fell
+  over to another lane, the router scrubbed the model *and* the effort, so the
+  fallback lane silently ran its own default model: pin `act` to
+  `devin-fast`/`swe-2-high` and lose `devin-fast` to a cooldown, and the job
+  landed on `devin-pro` running `swe-2-flash-high` — a different model family
+  than the one that was pinned. A model whose family matches the fallback lane
+  is now kept (`swe-2-high` stays `swe-2-high` across the devin lanes); a model
+  the fallback lane cannot serve is still scrubbed, so no lane ever receives a
+  foreign model id. The same rule now applies to the verify stage.
+- **Models whose reasoning is a variant no longer get `--effort`.** `MiniMax-M3`
+  exposes reasoning as a thinking variant rather than an effort level, so the
+  CLI rejects `--effort` for it ("does not support reasoning effort selection",
+  or "Invalid model thinking.effort" from the API). The router passed an effort
+  anyway and read the rejection as a mismatch, silently pivoting the stage to a
+  different model family. The router now omits the effort for models that cannot
+  take one and reports `default` instead of a fictional effort level.
+
 ## [1.0.15] — 2026-11-17
 
 ### Security

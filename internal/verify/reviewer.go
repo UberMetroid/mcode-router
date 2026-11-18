@@ -107,7 +107,7 @@ func invokeReviewer(req ReviewReq, sel envelope.SelectRes, lease *os.File, promp
 			prim = cp
 		}
 		if sel.Lane != prim {
-			rawM, rawEff = "", ""
+			rawM, rawEff = envelope.FallbackModel(rawM, sel.Lane), ""
 			if req.LogWriter != nil {
 				fmt.Fprintf(req.LogWriter, "[verify] fallback: requested %q -> %q (off-family/cooldown)\n", prim, sel.Lane)
 			}

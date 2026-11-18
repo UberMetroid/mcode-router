@@ -132,10 +132,50 @@ func EffectiveLaneSpec(
 	if argvEff == "" && (provider == "mcode" || provider == "grok" || provider == "muse") {
 		argvEff = regEff
 	}
+	if !SupportsEffort(provider, argvModel) {
+		argvEff = ""
+	}
 	effFb := orStr(inferred, orStr(regEff, orStr(cap.EffectiveEffort, "default")))
 	dispEff := orStr(explicitEff, orStr(cap.AliasEfforts[dispModel], effFb))
+	if !SupportsEffort(provider, dispModel) {
+		dispEff = "default"
+	}
 	return LaneSpec{
 		ArgvModel: argvModel, DisplayModel: dispModel,
 		ArgvEffort: argvEff, DisplayEffort: dispEff,
 	}, nil
+}
+
+// McodeNoEffortModels lists mcode models whose reasoning is a thinking variant
+// (thinking_config) rather than an effort level; the CLI rejects --effort for them.
+var McodeNoEffortModels = map[string]bool{"minimax/minimax-m3": true}
+
+// SupportsEffort reports whether a provider/model pair accepts an effort flag.
+func SupportsEffort(provider, model string) bool {
+	if provider != "mcode" {
+		return true
+	}
+	return !McodeNoEffortModels[strings.ToLower(strings.TrimSpace(model))]
+}
+
+// ModelFamilyOf derives the model family of a model id ("" when unknown).
+func ModelFamilyOf(model string) string {
+	m := strings.ToLower(model)
+	for _, fam := range []string{"swe-2-flash", "swe-2", "minimax", "muse", "grok", "glm"} {
+		if strings.Contains(m, fam) {
+			return fam
+		}
+	}
+	return ""
+}
+
+// FallbackModel returns the model a pinned stage keeps when it fails over to
+// another lane: a same-family model survives, a foreign one is scrubbed so the
+// fallback lane never receives a model it cannot serve.
+func FallbackModel(model, lane string) string {
+	fam := ModelFamilyOf(model)
+	if fam != "" && fam == fleet.ModelFamilies[lane] {
+		return model
+	}
+	return ""
 }

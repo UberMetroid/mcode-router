@@ -113,8 +113,16 @@ Runtime quota state lives in `~/.local/state/mcode-router/quota.json` (`v9`,
 Each stage (`observe`, `orient`, `act`, `verify`) defaults to automatic
 selection and resolves via **CLI flag > repo-local pin > profile > global pin >
 automatic**. Soft-pin failover moves down the lane priority chain on a 429 or
-cooldown and scrubs the primary lane's model and effort overrides. `verify`
-always excludes the authoring model family, even if pinned identically.
+cooldown and scrubs the primary lane's effort override; a model whose family
+matches the fallback lane is kept (`swe-2-high` survives a `devin-fast` to
+`devin-pro` failover), while a model the fallback lane cannot serve is still
+scrubbed so no lane ever receives a foreign model id. `verify` always excludes
+the authoring model family, even if pinned identically.
+
+Models whose reasoning is a variant rather than an effort level — `MiniMax-M3`
+exposes `thinking_config`, not effort levels — are dispatched **without**
+`--effort`; the CLI rejects an effort for them ("does not support reasoning
+effort selection"), and the dispatch reports `effort=default`.
 
 | Lane | CLI | Effort Control & Defaults | Tier | Cycle / Cap |
 |---|---|---|---|---|
