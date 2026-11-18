@@ -4,6 +4,7 @@ package worktree
 import (
 	"encoding/json"
 	"io"
+	"math"
 	"os"
 	"path"
 	"strconv"
@@ -50,10 +51,14 @@ func ParseRawTimeout(raw json.RawMessage) (int, bool, error) {
 		return sec, true, err
 	}
 	if val, err := strconv.ParseFloat(s, 64); err == nil {
-		if val <= 0 {
+		if val <= 0 || math.IsNaN(val) || math.IsInf(val, 0) {
 			return 0, true, fleet.UsageErr("error: timeout must be > 0 (got %s)", s)
 		}
-		return int(val), true, nil
+		if val > float64(math.MaxInt32) {
+			return 0, true, fleet.UsageErr("error: timeout must be <= %d seconds (got %s)",
+				math.MaxInt32, s)
+		}
+		return int(math.Ceil(val)), true, nil
 	}
 	return 0, true, fleet.UsageErr("error: invalid timeout %s", s)
 }

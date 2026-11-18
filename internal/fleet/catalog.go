@@ -6,7 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // ExitError carries an explicit process exit code for CLI error returns.
@@ -25,7 +27,7 @@ func UsageErr(format string, args ...any) error {
 }
 
 const (
-	Version            = "1.0.14"
+	Version            = "1.0.15"
 	QuotaSchemaVersion = 9
 	CornerWindowSecs   = 5400
 	SoonWakeSecs       = 2700
@@ -219,6 +221,68 @@ func ProviderSpecs() map[string]ProviderSpec {
 		"mistral": {CLI: "vibe", Tier: "capped", CycleHours: Ptr(720.0), Windows: []string{"30d"},
 			Role: "Mistral Vibe / GLM agent (30d monthly pool; off-peak aware for Z.ai)"},
 	}
+}
+
+// skipEscape returns the index just past the escape sequence starting at i.
+var skipEscape = func(s string, i int) int {
+	i++
+	if i < len(s) && s[i] == '[' {
+		i++
+		for i < len(s) && s[i] >= 0x20 && s[i] <= 0x3f {
+			i++
+		}
+	}
+	if i < len(s) {
+		i++
+	}
+	return i
+}
+
+// SafeText strips escape sequences and control characters from text that came
+// out of mutable state, so a forged value cannot repaint the terminal or forge
+// extra lines of output.
+var SafeText = func(s string) string {
+	var b strings.Builder
+	for i := 0; i < len(s); {
+		c := s[i]
+		switch {
+		case c == 0x1b:
+			i = skipEscape(s, i)
+		case c < 0x20 || c == 0x7f:
+			i++
+		case c >= 0x80:
+			// Drop the C1 control range, including the UTF-8 encoded CSI and
+			// any raw byte a terminal would read as an 8-bit control.
+			r, size := utf8.DecodeRuneInString(s[i:])
+			if (r == utf8.RuneError && size <= 1) || (r >= 0x80 && r <= 0x9f) {
+				i += size
+				continue
+			}
+			b.WriteString(s[i : i+size])
+			i += size
+		default:
+			b.WriteByte(c)
+			i++
+		}
+	}
+	return b.String()
+}
+
+// LaneCLIName resolves the binary a lane is allowed to run. The lane decides,
+// not the mutable quota file: a quota entry naming a different binary is
+// refused rather than followed.
+var LaneCLIName = func(lane, cliName string) (string, error) {
+	spec, ok := ProviderSpecs()[lane]
+	if !ok || spec.CLI == "" {
+		// A lane the router does not know has no business running a binary
+		// at all: the name would come from mutable state alone.
+		return "", UsageErr("error: unknown lane %q cannot be dispatched", lane)
+	}
+	if cliName != "" && cliName != spec.CLI {
+		return "", UsageErr("error: lane %s: cli %q does not match the canonical %q",
+			lane, cliName, spec.CLI)
+	}
+	return spec.CLI, nil
 }
 
 // DefaultProviders builds fresh active ProviderConfig entries.

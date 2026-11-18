@@ -179,6 +179,9 @@ func HudWorkerFinish(path string, last LastRunMarker) {
 func jsonNum(v any) (float64, bool) {
 	switch x := v.(type) {
 	case float64:
+		if math.IsNaN(x) || math.IsInf(x, 0) {
+			return 0, false
+		}
 		return x, true
 	case int:
 		return float64(x), true
@@ -190,19 +193,34 @@ func jsonNum(v any) (float64, bool) {
 	}
 }
 
+// clampTokens keeps a child-reported token count in a sane, non-negative range
+// so a malformed export can never shrink the quota counter or overflow it.
+var clampTokens = func(n float64) int {
+	if n <= 0 {
+		return 0
+	}
+	if n > 1e9 {
+		return 1000000000
+	}
+	return int(n)
+}
+
 func extractUsageTokens(u map[string]any) (int, bool) {
 	if u == nil {
 		return 0, false
 	}
 	for _, k := range []string{"total_tokens", "totalTokens"} {
 		if n, ok := jsonNum(u[k]); ok && n > 0 {
-			return int(n), true
+			return clampTokens(n), true
 		}
 	}
 	for i, k := range []string{"output_tokens", "outputTokens"} {
 		if n, ok := jsonNum(u[k]); ok && n > 0 {
 			inTok, _ := jsonNum(u[[]string{"input_tokens", "inputTokens"}[i]])
-			return int(n + inTok), true
+			if inTok < 0 {
+				inTok = 0
+			}
+			return clampTokens(n + inTok), true
 		}
 	}
 	return 0, false
@@ -239,8 +257,11 @@ func ParseVibeExport(exportDir string) *fleet.ExportUsage {
 				hasTok = true
 			}
 		}
-		if c, ok := jsonNum(src["cost_usd"]); ok {
-			totCost += c
+		if c, ok := jsonNum(src["cost_usd"]); ok && c > 0 {
+			// A zero or negative cost counts as no cost data, and a runaway
+			// figure is capped: a child must never be able to walk the spend
+			// counter backwards, or blow it up past the budget arithmetic.
+			totCost += min(c, 1e6)
 			hasCost = true
 		}
 	}

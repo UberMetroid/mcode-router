@@ -26,7 +26,11 @@ func shouldSkipProbe(lane string, info *fleet.ProviderConfig, nowUTC time.Time, 
 	if info.ManualDisable {
 		return "manually disabled"
 	}
-	if fleet.ResolveCLI(info.CLI) == "" {
+	cliName, cliErr := fleet.LaneCLIName(lane, info.CLI)
+	if cliErr != nil {
+		return fleet.SafeText(cliErr.Error())
+	}
+	if fleet.ResolveCLI(cliName) == "" {
 		return "cli not installed"
 	}
 	if lane == "muse" && musePayg {
@@ -47,7 +51,11 @@ func shouldSkipProbe(lane string, info *fleet.ProviderConfig, nowUTC time.Time, 
 }
 
 func probeOneLane(lane string, info *fleet.ProviderConfig, cwd string) (string, bool) {
-	cliPath := fleet.ResolveCLI(info.CLI)
+	cliName, cliErr := fleet.LaneCLIName(lane, info.CLI)
+	if cliErr != nil {
+		return fleet.SafeText(cliErr.Error()), false
+	}
+	cliPath := fleet.ResolveCLI(cliName)
 	if cliPath == "" {
 		return "cli missing", false
 	}

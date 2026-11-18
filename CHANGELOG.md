@@ -4,6 +4,46 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.15] — 2026-11-17
+
+### Security
+
+- **A worker can no longer steer the router through the files it can write.**
+  A second harden pass over the router found eight more trust-boundary
+  defects. All are now closed, each with a refusal test that fails against the
+  unfixed code:
+  - The lane decides which binary a worker runs. The mutable quota file named
+    it, so a forged `cli` entry could point a worker at any executable on
+    `PATH`. A lane the router does not know is now refused outright.
+  - The paid-lane gate read the quota file's `tier`, so a forged tier could
+    make a credits lane look free and get it dispatched without `--lane`. The
+    gate now reads the static provider spec.
+  - A stage pin — in the workspace file or in the quota file — was trusted as
+    written. Both are re-validated on read now: known lanes only, no paid or
+    PAYG lane, no reserved model, and no expired pin.
+  - A numeric timeout had no upper bound, so a huge value overflowed the
+    duration arithmetic and turned into an instant or endless run. It is capped
+    now, and a sub-second value rounds up instead of truncating to zero.
+  - A worker export could report negative tokens or cost, walking the quota
+    counter backwards, or a runaway figure that broke the next quota write.
+    Both are clamped now.
+  - A Gemini or orchestrator model named in the devin config could reach the
+    worker argv, past the reserved-model guard.
+  - The review prompt inlined the diff with no separation from its own
+    instructions, so a crafted file could forge a verdict. The patch is fenced
+    now, and the verdict contract and the finding tags inside it are
+    neutralised — in the inline prompt and in the native review path alike.
+  - Text that came out of mutable state reached the terminal unsanitised, so a
+    forged worker marker or a forged quota field could repaint the screen. It
+    is stripped of escape sequences and control characters everywhere it is
+    printed.
+
+### Added
+
+- `qa/acceptance` grew to twenty-seven black-box refusal tests, all of them
+  driving the public API only, so a guard cannot be bypassed by reaching into
+  package internals.
+
 ## [1.0.14] — 2026-11-17
 
 ### Security
@@ -286,6 +326,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.15]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.15
 [1.0.14]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.14
 [1.0.13]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.13
 [1.0.12]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.12

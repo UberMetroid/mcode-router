@@ -96,14 +96,17 @@ func PrintLiveTelemetry(w io.Writer) {
 	for _, m := range active {
 		meta := readWorkerMeta(m, now)
 		fmt.Fprintf(w, "  ACTIVE lane=%s cli=%s model=%s effort=%s phase=%s tok/s=%s elapsed=%.1fs\n",
-			m.Lane, m.CLI, dispatch.ShortModel(m.Model), m.Effort,
-			meta.phase, rateText(meta), meta.elapsed)
+			fleet.SafeText(m.Lane), fleet.SafeText(m.CLI),
+			fleet.SafeText(dispatch.ShortModel(m.Model)), fleet.SafeText(m.Effort),
+			fleet.SafeText(meta.phase), rateText(meta), meta.elapsed)
 		fmt.Fprintf(w, "         task=%s cwd=%s skills=%s\n",
-			m.TaskID, m.Cwd, strings.Join(dispatch.VisibleExtraSkills(m.Skills), ","))
+			fleet.SafeText(m.TaskID), fleet.SafeText(m.Cwd),
+			fleet.SafeText(strings.Join(dispatch.VisibleExtraSkills(m.Skills), ",")))
 	}
 	if last, ok := ReadLastWorker(); ok {
 		fmt.Fprintf(w, "  LAST   lane=%s model=%s effort=%s exit=%d duration=%.1fs\n",
-			last.Lane, dispatch.ShortModel(last.Model), last.Effort, last.ExitCode, last.DurationS)
+			fleet.SafeText(last.Lane), fleet.SafeText(dispatch.ShortModel(last.Model)),
+			fleet.SafeText(last.Effort), last.ExitCode, last.DurationS)
 	}
 }
 
@@ -139,7 +142,7 @@ func FormatWorkerLine(pal Palette, m dispatch.WorkerMarker, now time.Time) strin
 	}
 	parts := []string{
 		rateColor(pal, meta.rate) + rateBolt + " " + rate + " tok/s" + ansiReset,
-		pal.StatusAccent + dispatch.ShortModel(m.Model) + ansiReset,
+		pal.StatusAccent + fleet.SafeText(dispatch.ShortModel(m.Model)) + ansiReset,
 	}
 	return strings.Join(parts, " · ")
 }

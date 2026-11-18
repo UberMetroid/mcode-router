@@ -54,8 +54,9 @@ func resolveAutoRoute(stage string, q *fleet.QuotaState) string {
 	if serr != nil {
 		return sel.Lane + " (model unresolved)"
 	}
-	return fmt.Sprintf("%s (%s/%s)", sel.Lane,
-		dispatch.ShortModel(spec.DisplayModel), nonEmptyOr(spec.DisplayEffort, "default"))
+	return fmt.Sprintf("%s (%s/%s)", fleet.SafeText(sel.Lane),
+		dispatch.ShortModel(fleet.SafeText(spec.DisplayModel)),
+		fleet.SafeText(nonEmptyOr(spec.DisplayEffort, "default")))
 }
 
 // DoStandaloneReview runs read-only cross-model review against targetArg.

@@ -33,10 +33,10 @@ func checkCandidate(
 	name string, req SelectReq, depth int, expSet map[string]bool, resolver func(string) string,
 ) (SelectRes, string, bool) {
 	if req.Exclude != nil && req.Exclude[name] {
-		return SelectRes{}, name + ": already attempted", false
+		return SelectRes{}, fleet.SafeText(name) + ": already attempted", false
 	}
 	if req.StrictAvoid && req.AvoidFamilies != nil && req.AvoidFamilies[ModelFamily(name)] {
-		return SelectRes{}, name + ": excluded family (" + ModelFamily(name) + ")", false
+		return SelectRes{}, fleet.SafeText(name) + ": excluded family (" + fleet.SafeText(ModelFamily(name)) + ")", false
 	}
 	if !expSet["muse"] && name == "muse" && fleet.CachedMuseProbe(900).PayAsYouGo {
 		return SelectRes{}, "muse: skipped (pay-as-you-go api_key active; Power subscription inactive)", false
@@ -46,24 +46,34 @@ func checkCandidate(
 		info = req.Quota.Providers[name]
 	}
 	if info == nil {
-		return SelectRes{}, name + ": not configured", false
+		return SelectRes{}, fleet.SafeText(name) + ": not configured", false
 	}
-	if (!expSet[name] || req.Complexity == "review") && info.Tier == "credits" {
-		return SelectRes{}, name + ": paid credits require explicit --lane " + name, false
+	// The billing gate reads the static spec, not the quota file: a forged
+	// tier must not be able to make a paid lane look free.
+	tier := info.Tier
+	if spec, known := fleet.ProviderSpecs()[name]; known && spec.Tier != "" {
+		tier = spec.Tier
+	}
+	if (!expSet[name] || req.Complexity == "review") && tier == "credits" {
+		return SelectRes{}, fleet.SafeText(name) + ": paid credits require explicit --lane " + fleet.SafeText(name), false
 	}
 	if info.Status != "active" {
 		why := info.Status
 		if info.Reason != nil && *info.Reason != "" {
 			why = *info.Reason
 		}
-		return SelectRes{}, fmt.Sprintf("%s: %s (%s)", name, info.Status, why), false
+		return SelectRes{}, fleet.SafeText(fmt.Sprintf("%s: %s (%s)", name, info.Status, why)), false
 	}
 	cliPath := ""
-	if info.CLI != "" {
-		cliPath = resolver(info.CLI)
+	cliName, cliErr := fleet.LaneCLIName(name, info.CLI)
+	if cliErr != nil {
+		return SelectRes{}, fleet.SafeText(cliErr.Error()), false
 	}
-	if info.CLI == "" || cliPath == "" {
-		return SelectRes{}, fmt.Sprintf("%s: cli '%s' not installed", name, info.CLI), false
+	if cliName != "" {
+		cliPath = resolver(cliName)
+	}
+	if cliName == "" || cliPath == "" {
+		return SelectRes{}, fleet.SafeText(fmt.Sprintf("%s: cli '%s' not installed", name, cliName)), false
 	}
 	return SelectRes{Lane: name, Info: info, CLIPath: cliPath}, "", true
 }

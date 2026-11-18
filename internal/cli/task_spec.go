@@ -73,12 +73,13 @@ func printStageMatrix(w io.Writer, cwd string, opts CLIOpts, q *fleet.QuotaState
 			route = resolveAutoRoute(st, q)
 		} else {
 			mod, eff := nonEmptyOr(sp.Model, "default"), nonEmptyOr(sp.Effort, "default")
-			route = fmt.Sprintf("%s (%s/%s)", sp.Lane, dispatch.ShortModel(mod), eff)
+			route = fmt.Sprintf("%s (%s/%s)", fleet.SafeText(sp.Lane),
+				dispatch.ShortModel(fleet.SafeText(mod)), fleet.SafeText(eff))
 			if sp.ExpiresAt != nil && *sp.ExpiresAt != "" {
 				route += " [until reset]"
 			}
 		}
-		fmt.Fprintf(w, "%-9s %-14s %-40s %s\n", st, mode, route, roles[st])
+		fmt.Fprintf(w, "%-9s %-14s %-40s %s\n", st, fleet.SafeText(mode), route, roles[st])
 	}
 }
 

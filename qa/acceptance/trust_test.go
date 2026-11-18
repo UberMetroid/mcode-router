@@ -154,4 +154,3 @@ func TestSnapshotQuotedIgnoredName(t *testing.T) {
 	}
 	t.Fatalf("rewritten gitignored file with a quoted name not detected: %v", drift)
 }
-

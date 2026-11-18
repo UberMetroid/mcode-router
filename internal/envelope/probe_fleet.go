@@ -94,6 +94,13 @@ func ProbeDevinConfig(home string) DevinConfig {
 	laneMods := map[string]string{
 		"devin-fusion": mapStr(prefs, "fusion"), "devin-pro": pro, "devin-fast": fast,
 	}
+	for lane, m := range laneMods {
+		// A reserved Gemini or orchestrator id must never reach the worker
+		// argv, whatever the devin config says.
+		if IsGeminiModel(m) {
+			delete(laneMods, lane)
+		}
+	}
 	laneEff := make(map[string]string)
 	var models []string
 	seen := make(map[string]bool)

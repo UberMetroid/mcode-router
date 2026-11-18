@@ -38,9 +38,9 @@ var (
 	pipePat         = `\b(?:cu` + `rl|wg` + `et)\b[^|\n]*\|\s*(?:sudo\s+)?(?:ba|z|da|k)?sh\b`
 	urlCredPat      = `(?i)\b(?:postgres|postgresql|mysql|mongodb|redis|amqp|ftp|sftp)` +
 		`://[^:\s/]+:[^@\s/]+@`
-	credAssignPat   = `(?i)\b(?:pass(?:word|wd)?|secret|api[_-]?key|auth[_-]?token|` +
+	credAssignPat = `(?i)\b(?:pass(?:word|wd)?|secret|api[_-]?key|auth[_-]?token|` +
 		`access[_-]?token|client[_-]?secret)\s*[:=]\s*["']?[^"'\s]{6,}`
-	p0Rules         = []struct {
+	p0Rules = []struct {
 		name string
 		re   *regexp.Regexp
 	}{

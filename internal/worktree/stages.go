@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/UberMetroid/mcode-router/internal/fleet"
@@ -74,6 +75,55 @@ func WorkspaceStagesPath(cwd string) string {
 	return filepath.Join(filepath.Dir(fleet.QuotaFilePath("")), "workspaces", id+".json")
 }
 
+// warnedPins keeps a stage pin warning to one line per stage per process.
+var warnedPins = func() func(string, string) {
+	var mu sync.Mutex
+	seen := map[string]bool{}
+	return func(key, msg string) {
+		mu.Lock()
+		defer mu.Unlock()
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+		fmt.Fprintln(os.Stderr, msg)
+	}
+}()
+
+// sanitizeStageRoute re-validates a stage route that came from mutable state,
+// applying the same invariants as the write path: known lanes only, no paid
+// or PAYG lane, and no reserved model.
+var sanitizeStageRoute = func(r fleet.StageRoute) (fleet.StageRoute, bool) {
+	lanes, err := fleet.ParseLanes(r.Lane, true)
+	if err != nil || len(lanes) == 0 {
+		return fleet.StageRoute{}, false
+	}
+	for _, l := range lanes {
+		spec, known := fleet.ProviderSpecs()[l]
+		if l == "devin-fusion" || (known && spec.Tier == "credits") ||
+			(l == "muse" && fleet.MusePayAsYouGoCached()) {
+			return fleet.StageRoute{}, false
+		}
+	}
+	if r.ExpiresAt != nil && *r.ExpiresAt != "" {
+		dt, ok := fleet.ParseISOUTC(*r.ExpiresAt)
+		if !ok || !dt.After(time.Now().UTC()) {
+			return fleet.StageRoute{}, false
+		}
+	}
+	if r.Model != nil {
+		if err := fleet.CheckModelGuard(*r.Model); err != nil {
+			return fleet.StageRoute{}, false
+		}
+	}
+	if len(lanes) == 1 && lanes[0] == "auto" && (r.Model != nil || r.Effort != nil) {
+		// An auto route may not carry a model or an effort.
+		return fleet.StageRoute{}, false
+	}
+	r.Lane = strings.Join(lanes, ",")
+	return r, true
+}
+
 // LoadWorkspaceStages reads repo-scoped overrides and ignores expired pins.
 func LoadWorkspaceStages(cwd string) map[string]fleet.StageRoute {
 	out := make(map[string]fleet.StageRoute, len(fleet.StageNames))
@@ -91,7 +141,12 @@ func LoadWorkspaceStages(cwd string) map[string]fleet.StageRoute {
 					continue
 				}
 			}
-			out[st] = r
+			clean, ok := sanitizeStageRoute(r)
+			if !ok {
+				warnedPins("workspace-"+st, "warning: ignoring invalid workspace stage pin for "+st)
+				continue
+			}
+			out[st] = clean
 		}
 	}
 	return out
@@ -230,6 +285,14 @@ func ResolveStage(stage, cliLane, cliModel, cliEffort, cliProfile, cwd string, q
 	}
 	ws := LoadWorkspaceStages(cwd)
 	pre, hasPre := PresetStages(cliProfile)
+	globalRoute, hasGlobal := fleet.StageRoute{}, false
+	if q != nil && q.Stages != nil && q.Stages[stage].Lane != "" && q.Stages[stage].Lane != "auto" {
+		if clean, ok := sanitizeStageRoute(q.Stages[stage]); ok {
+			globalRoute, hasGlobal = clean, true
+		} else {
+			warnedPins("global-"+stage, "warning: ignoring invalid global stage pin for "+stage)
+		}
+	}
 	switch {
 	case cliLane != "":
 		return pick("cli", fleet.StageRoute{Lane: cliLane})
@@ -237,8 +300,8 @@ func ResolveStage(stage, cliLane, cliModel, cliEffort, cliProfile, cwd string, q
 		return pick("local", ws[stage])
 	case hasPre && pre[stage].Lane != "" && pre[stage].Lane != "auto":
 		return pick("profile:"+strings.TrimSpace(cliProfile), pre[stage])
-	case q != nil && q.Stages != nil && q.Stages[stage].Lane != "" && q.Stages[stage].Lane != "auto":
-		return pick("global", q.Stages[stage])
+	case hasGlobal:
+		return pick("global", globalRoute)
 	default:
 		return StageSpec{Stage: stage, Source: "auto", Lane: "auto", Primary: "auto", Model: cliModel, Effort: cliEffort}
 	}

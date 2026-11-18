@@ -120,6 +120,21 @@ func ProbeMuseUsage(timeoutSec int) MuseProbe {
 	return p
 }
 
+// MusePayAsYouGoCached reports the cached PAYG state without triggering a new
+// probe, so a read-side validation never reaches the network.
+var MusePayAsYouGoCached = func() bool {
+	raw, err := os.ReadFile(filepath.Join(ScratchDirPath(), "muse_usage.json"))
+	if err != nil {
+		return false
+	}
+	var cached MuseProbe
+	if json.Unmarshal(raw, &cached) != nil || cached.CheckedAt <= 0 {
+		return false
+	}
+	now := float64(time.Now().UnixNano()) / 1e9
+	return cached.PayAsYouGo && (now-cached.CheckedAt) <= 900
+}
+
 // CachedMuseProbe returns a recent cached `muse usage --json` probe without delaying the HUD.
 func CachedMuseProbe(maxAgeSec float64) MuseProbe {
 	cachePath, ttl := filepath.Join(ScratchDirPath(), "muse_usage.json"), maxAgeSec

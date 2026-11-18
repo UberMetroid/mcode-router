@@ -47,7 +47,11 @@ func formatCommas(n int) string {
 func statusRow(
 	name string, info *fleet.ProviderConfig, nowUTC time.Time, lc envelope.LaneCap, musePayg bool,
 ) string {
-	binNote := nonEmptyOr(fleet.ResolveCLI(info.CLI), "MISSING")
+	cliName, cliErr := fleet.LaneCLIName(name, info.CLI)
+	binNote := "MISSING"
+	if cliErr == nil {
+		binNote = nonEmptyOr(fleet.ResolveCLI(cliName), "MISSING")
+	}
 	eff, mod := lc.EffectiveEffort, lc.EffectiveModel
 	if info.Effort != nil && *info.Effort != "" {
 		eff = *info.Effort
@@ -84,7 +88,10 @@ func statusRow(
 		detail += fmt.Sprintf(" | [max %d parallel, %d/%d busy]", mp, fleet.CountActiveLeases(name, mp), mp)
 	}
 	return fmt.Sprintf("%-13s %-9s %-10s %-9s %-9s %-28s %s",
-		name, info.Status, info.Tier, clipStr(eff, 9), info.CLI, clipStr(dispatch.ShortModel(mod), 28), detail)
+		name, fleet.SafeText(info.Status), fleet.SafeText(info.Tier),
+		clipStr(fleet.SafeText(eff), 9),
+		fleet.SafeText(info.CLI), clipStr(dispatch.ShortModel(fleet.SafeText(mod)), 28),
+		fleet.SafeText(detail))
 }
 
 // ReportStatus prints fleet readiness or refreshes CLI capability discovery caches.
@@ -115,11 +122,13 @@ func ReportStatus(w io.Writer, refresh bool, cliOpts ...CLIOpts) int {
 			pool = fleet.StripePool
 		}
 		fmt.Fprintf(w, "Quota state        : %s (v%d, updated: %s)\n",
-			fleet.QuotaFilePath(""), q.Version, derefOr(q.UpdatedAt, ""))
+			fleet.SafeText(fleet.QuotaFilePath("")), q.Version,
+			fleet.SafeText(derefOr(q.UpdatedAt, "")))
 		fmt.Fprintf(w, "Drain capped first : %t (expiring clocks, 0.5x off-peak & short windows first)\n",
 			q.DrainCappedFirst)
 		fmt.Fprintf(w, "Parallel stripe    : %s\nFallback chain     : %s\n\n",
-			strings.Join(pool, " -> "), strings.Join(chain, " -> "))
+			fleet.SafeText(strings.Join(pool, " -> ")),
+			fleet.SafeText(strings.Join(chain, " -> ")))
 	}
 	fmt.Fprintf(w, "%-13s %-9s %-10s %-9s %-9s %-28s %s\n",
 		"LANE", "STATUS", "TIER", "EFFORT", "CLI", "MODEL", "RESET / BINARY")
@@ -158,7 +167,7 @@ func usageRow(
 ) string {
 	cycStr, pref := "creds", "~"
 	if len(info.Windows) > 0 {
-		cycStr = strings.Join(info.Windows, "+")
+		cycStr = fleet.SafeText(strings.Join(info.Windows, "+"))
 	} else if info.CycleHours != nil {
 		cycStr = fmt.Sprintf("%gh", *info.CycleHours)
 	}
@@ -205,7 +214,8 @@ func usageRow(
 		note = strings.TrimSpace("[" + badge + "] " + note)
 	}
 	return fmt.Sprintf("%-13s %-9s %-9s %-7s %-5d %-14s %-9s %-12s %s",
-		name, info.Status, reg, cycStr, info.CycleRuns, tokStr, costStr, resetCD, note)
+		name, fleet.SafeText(info.Status), fleet.SafeText(reg), cycStr, info.CycleRuns,
+		tokStr, costStr, resetCD, fleet.SafeText(note))
 }
 
 // DoUsage prints cycle token/cost telemetry, quota state, and live muse usage probe.
