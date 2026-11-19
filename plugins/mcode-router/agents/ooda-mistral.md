@@ -1,9 +1,8 @@
 ---
 name: ooda-mistral
 description: >-
-  OODA orchestrator driving Mistral Vibe and Z.ai, with glm-5-3 and
-  mistral-large-4-0-3 for orient and act, devin-fast recon, and mcode diff
-  verification.
+  OODA orchestrator driving Mistral Vibe and Z.ai: devin-fast recon, glm-5-3
+  and mistral-large-4-0-3 for orient and act, and mcode diff verification.
 effort: high
 ---
 

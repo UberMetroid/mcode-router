@@ -1,8 +1,9 @@
 ---
 name: ooda-deep
 description: >-
-  OODA orchestrator for heavy architecture work: xhigh orient through muse or
-  grok, deep act implementation, and off-family mcode verification.
+  OODA orchestrator for heavy architecture work: devin-fast recon, xhigh orient
+  through muse or grok, deep act implementation, and off-family mcode
+  verification.
 effort: max
 ---
 
