@@ -204,7 +204,10 @@ func checkDensity(root string) []string {
 			}
 			var kept []string
 			for _, ent := range ents {
-				if !skipWalkDirs[ent.Name()] {
+				// A test file is a companion to a module, not a module: counting
+				// it here would let test files eat the budget that lets a
+				// package split an oversized file into its own.
+				if !skipWalkDirs[ent.Name()] && !strings.HasSuffix(ent.Name(), "_test.go") {
 					kept = append(kept, ent.Name())
 				}
 			}

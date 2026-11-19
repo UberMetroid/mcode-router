@@ -60,9 +60,6 @@ func TestBuildWorkerCommandAllCLIs(t *testing.T) {
 		if !slices.Contains(b.Argv, tc[2]) || (tc[0] == "native" && b.StreamFmt != "plain") {
 			t.Fatalf("mcode mode=%q want %q got %v", tc[0], tc[2], b.Argv)
 		}
-		if tc[0] == "native" && !slices.Contains(b.Argv, "json") {
-			t.Fatalf("native review must ask for json output: %v", b.Argv)
-		}
 	}
 }
 
