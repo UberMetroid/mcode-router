@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **The README and the GitHub page say OODA, and say what OODA is.** Both now open with
+  the phases — **Observe → Orient → Decide → Act** — and explain that Decide is the
+  orchestrator's own phase, so it never spends a worker lane. The four worker-facing
+  pins (`observe`, `orient`, `act`, `verify`) are described as stage pins, and `verify`
+  is named as the off-family review that OODA keeps inside Act, promoted to a stage of
+  its own. The page's pipeline strip and its version strings move to v1.0.19.
+
 ## [1.0.19] — 2026-11-18
 
 ### Changed

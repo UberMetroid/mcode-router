@@ -453,13 +453,15 @@
   <main id="top">
     <section class="hero">
       <div class="wrap">
-        <span class="eyebrow">mcode-router v1.0.16 &bull; Static Go 1.22+ (CGO_ENABLED=0) &bull; MCP Server</span>
+        <span class="eyebrow">mcode-router v1.0.19 &bull; Static Go 1.22+ (CGO_ENABLED=0) &bull; MCP Server</span>
         <h1>Turn one MiniMax Code session into a<br><span>token-routed agent fleet.</span></h1>
         <p class="lead">
           <strong>UberMetroid/mcode-router</strong> is a zero-dependency static Go OODA engine that plugs into
-          MiniMax Code (<code>mcode</code>) through a built-in MCP server. Four stages
-          (<code>observe</code>, <code>orient</code>, <code>act</code>, <code>verify</code>) resolve a lane, a model
-          and an effort level from live quota state, and every diff is graded by a different model family.
+          MiniMax Code (<code>mcode</code>) through a built-in MCP server. The
+          <strong>OODA</strong> loop &mdash; Observe &rarr; Orient &rarr; Decide &rarr; Act &mdash; runs as four
+          worker stage pins (<code>observe</code>, <code>orient</code>, <code>act</code>,
+          <code>verify</code>), each resolving a lane, a model and an effort level from live quota state, and
+          every diff is graded by a different model family.
         </p>
         <div class="install-bar" role="region" aria-label="One-line web installer">
           <code id="install-cmd">curl -fsSL https://ubermetroid.github.io/mcode-router/install.sh | bash</code>
@@ -467,13 +469,13 @@
         </div>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#quickstart">Install &amp; Quickstart</a>
-          <a class="btn" href="https://github.com/UberMetroid/mcode-router/releases/latest">Release Binaries (v1.0.16)</a>
+          <a class="btn" href="https://github.com/UberMetroid/mcode-router/releases/latest">Release Binaries (v1.0.19)</a>
           <a class="btn" href="#mcp">MCP Server</a>
         </div>
         <div class="telemetry-strip">
           <div class="stat">
             <div class="stat-k">OODA Pipeline</div>
-            <div class="stat-v green">observe &rarr; orient &rarr; act &rarr; verify</div>
+            <div class="stat-v green">observe &rarr; orient &rarr; decide &rarr; act</div>
           </div>
           <div class="stat">
             <div class="stat-k">Static Binary</div>
@@ -495,8 +497,16 @@
       <div class="wrap">
         <div class="sec-head">
           <h2>The OODA Pipeline</h2>
-          <span class="sec-tag">observe &rarr; orient &rarr; act &rarr; verify</span>
+          <span class="sec-tag">observe &rarr; orient &rarr; decide &rarr; act</span>
         </div>
+        <p class="sec-sub">
+          OODA is <strong>Observe &rarr; Orient &rarr; Decide &rarr; Act</strong>. Decide is the
+          orchestrator's own phase &mdash; it locks the files in scope, the execution mode and the
+          build/test gate, so it never spends a worker lane. The router exposes the worker-facing
+          work as four stage pins: observe, orient, act and verify, where verify is the off-family
+          review OODA keeps inside Act, promoted to a stage of its own so it can be pinned, cached
+          and rotated on its own.
+        </p>
         <p class="sec-sub">
           Every stage is a separate, quota-aware call with its own lane, model and effort resolution. The
           orchestrator stays thin: it owns the plan and the final call while the workers do the reading, the
