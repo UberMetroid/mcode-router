@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.17] — 2026-11-18
 
 ### Fixed
 
@@ -372,6 +372,7 @@ MiniMax Code.
 - **Zero-Go web installer** at `docs/install.sh` with SHA-256 verification of the downloaded
   static binary.
 
+[1.0.17]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.17
 [1.0.16]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.16
 [1.0.15]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.15
 [1.0.14]: https://github.com/UberMetroid/mcode-router/releases/tag/v1.0.14
