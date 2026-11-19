@@ -86,7 +86,7 @@ func mcpReviewArgv(params map[string]any) []string {
 	return argv
 }
 
-// mcpSetArgv assembles argv for pinning or resetting an OODA stage lane.
+// mcpSetArgv assembles argv for pinning or resetting a worker stage lane.
 func mcpSetArgv(params map[string]any) ([]string, bool) {
 	stage := mcpStr(params, "stage")
 	lane := mcpStr(params, "lane")

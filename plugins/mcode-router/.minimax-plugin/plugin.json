@@ -10,7 +10,7 @@
   "exampleQueries": [
     "Run the OODA loop on this repo and fix the failing test",
     "Recon this repository and tell me how it builds",
-    "Show which model each OODA stage would use right now"
+    "Show which model each worker stage would use right now"
   ],
   "apps": [],
   "mcpServers": [

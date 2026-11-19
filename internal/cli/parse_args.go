@@ -34,7 +34,7 @@ func usageText(prog string) string {
 			"             --set-cycle P | manifest]\n\n"+
 			"options:\n  -h, --help             show this help message and exit\n"+
 			"  -v, --version          show binary version and exit\n"+
-			"  -s, --select           interactive arrow-key OODA stage & model selector\n"+
+			"  -s, --select           interactive arrow-key worker stage & model selector\n"+
 			"  --recon/--orient PROMPT  read-only Observe recon or Orient architecture analysis\n"+
 			"  --task PROMPT          execute scoped coding task in CWD (use --cwd DIR to target a repo)\n"+
 			"  --review [PATH]        standalone read-only cross-model review (default CWD)\n"+

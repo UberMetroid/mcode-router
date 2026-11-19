@@ -1,4 +1,4 @@
-// MCP tool catalogue: OODA stage verbs and fleet introspection for MiniMax Code.
+// MCP tool catalogue: worker stage verbs and fleet introspection for MiniMax Code.
 package main
 
 import (
@@ -116,7 +116,7 @@ func mcpAdminTools() []mcpTool {
 		},
 		{
 			Name: "ooda_set_stage",
-			Description: "Pin an OODA stage to a lane, or reset a pin, so routing becomes " +
+			Description: "Pin a worker stage to a lane, or reset a pin, so routing becomes " +
 				"deterministic for a repository or globally. Stages are observe, orient, " +
 				"act and verify.",
 			InputSchema: mcpSchema(map[string]any{

@@ -2,15 +2,20 @@
 name: lane
 description: >-
   Inspect and configure which mcode-router lane, model, and effort run at each
-  OODA stage (observe, orient, act, verify) globally or for this repository, or
-  apply a workflow preset. Use when the user asks to switch, pin, reset, or
-  inspect the models used across OODA stages.
+  worker stage (observe, orient, act, verify) globally or for this repository,
+  or apply a workflow preset. Use when the user asks to switch, pin, reset, or
+  inspect the models used across the worker stages.
 ---
 
-# Lane — OODA Stage & Model Selector
+# Lane — Worker Stage & Model Selector
 
 Use this skill when the user asks to switch, pin, reset, or inspect the lanes
-and models used across OODA stages (`observe`, `orient`, `act`, `verify`).
+and models used across the worker stages (`observe`, `orient`, `act`, `verify`).
+
+Decide is the orchestrator's own phase — it locks the files in scope, the
+execution mode and the build/test gate — so it has no lane, model or effort to
+pin. The four worker stages are the router's stage pins; `verify` is the
+off-family review that OODA keeps inside Act.
 
 ## Procedure
 
@@ -23,7 +28,7 @@ and models used across OODA stages (`observe`, `orient`, `act`, `verify`).
 2. Ask the user with `ask_user` so they get native selection:
 
    - **Prompt 1 — what and where:**
-     - `Action`: `Change a single OODA stage (observe / orient / act / verify)`,
+     - `Action`: `Change a single worker stage (observe / orient / act / verify)`,
        `Apply a workflow preset (auto / conserve / deep / devin / fusion / grok / mcode /
        muse / mistral)`, or `Reset all stages to auto`
      - `Scope`: `Global (~/.local/state/mcode-router/quota.json)` or

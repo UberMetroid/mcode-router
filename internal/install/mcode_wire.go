@@ -18,7 +18,7 @@ var mcodeHookSpecs = []mcodeHookSpec{
 	{"SessionStart", "OODA fleet context",
 		"mcode-router --status 2>/dev/null | head -40"},
 	{"UserPromptSubmit", "OODA routing state",
-		"mcode-router --status 2>/dev/null | sed -n '/OODA Stage Routing Matrix/,$p'"},
+		"mcode-router --status 2>/dev/null | sed -n '/Stage Routing Matrix/,$p'"},
 }
 
 // mcodeCopySkills copies the plugin skills into the MCode skills directory.
