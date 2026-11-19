@@ -239,9 +239,6 @@ func RunReview(req ReviewReq) ReviewResult {
 				Reason: "reviewer mutated workspace", Output: msg}
 		}
 		verdict := ParseReviewVerdict(res.Output)
-		if nv, report, ok := ParseNativeVerdict(res.Output); ok {
-			verdict, res.Output = nv, report
-		}
 		if res.ExitCode != 0 && verdict == "ACCEPT" {
 			verdict = "UNKNOWN"
 		}

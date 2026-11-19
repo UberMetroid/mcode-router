@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/UberMetroid/mcode-router/internal/fleet"
+	"github.com/UberMetroid/mcode-router/internal/verify"
 )
 
 const outputTailRunes, streamTick = 20000, 1 * time.Second
@@ -162,6 +163,7 @@ func finalizeOutput(built BuiltCmd, st *streamTracker, errText string,
 			out = st.turnBuf.str()
 		}
 	}
+	out = verify.NormalizeNativeReview(out)
 	if st.isError && code == 0 {
 		code = 1
 	}

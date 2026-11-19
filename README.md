@@ -226,7 +226,7 @@ The repository is machine-checked by `make all`:
 |---|---|
 | `make portable` | No third-party imports, no embedded credentials, no `sh -c`/`bash -c` |
 | `make line-cap` | Every `.go` file is 16–320 lines, every line ≤ 128 columns |
-| `make density` | At most 8 entries per directory under `cmd/`, `internal/`, `plugins/`, `qa/` |
+| `make density` | At most 8 modules per directory under `cmd/`, `internal/`, `plugins/`, `qa/` (test files excluded) |
 | `make vocab` | No banned drawer filenames; identifiers ≤ 32 characters |
 | `make shape` | ≤ 8 function declarations per file, ≤ 8 params, ≤ 64 body lines, ≤ 4 nesting levels |
 | `make mcode-plugin` | The package satisfies the MiniMax Code manifest and packaging rules |

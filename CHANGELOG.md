@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **The directory-density gate counts modules, not test files.** A test file is a
+  companion to a module, so counting it against the eight-entry budget let test
+  files eat the slots that let a package split an oversized file into its own.
+  That is what forced the file-length cap from 256 to 320 in v1.0.14: every
+  affected package was already at both the function and the directory cap, so
+  the guards had to live beside the code they protect. With the count fixed, a
+  package can split again.
+- **The native review lives in its own module.** `internal/verify/native_review.go`
+  holds the native envelope, the note that asks the native reviewer for its
+  findings, and the mapping of the reviewer's own verdict onto the router's
+  contract. `verdict.go` drops to 237 lines, the dispatch lane builders move to
+  `internal/dispatch/build_lanes.go`, and every file this touches now stays
+  inside the 256-line house law.
+
 ## [1.0.17] — 2026-11-18
 
 ### Fixed

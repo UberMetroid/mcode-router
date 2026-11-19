@@ -23,9 +23,12 @@ Every `[GATE]` rule below is machine-enforced by `Makefile` targets and
   256 in v1.0.14 so that trust-boundary guards could be added to the files that
   already hold the relevant logic, instead of being spread across new files or
   compacted into unreadable shapes.
-- `[GATE]` **Directory Density <= 8 (`make density`):** At most **8 entries per
+- `[GATE]` **Directory Density <= 8 (`make density`):** At most **8 modules per
   directory** under `cmd/`, `internal/`, `plugins/mcode-router/`, and `qa/`
-  (excluding `.git`, `.worktrees`, `__pycache__`).
+  (excluding `.git`, `.worktrees`, `__pycache__`, and `*_test.go`). A test file
+  is a companion to a module, not a module: counting it here let test files eat
+  the budget that pays for a split, which is what forced the length cap up in
+  v1.0.14.
 - `[GATE]` **Function Shape (`make shape`):** Across every `.go` file AST: at
   most **8 function declarations**, at most **8 parameters** per function, at
   most **64 non-blank non-comment lines** per function body, at most **4 levels**
