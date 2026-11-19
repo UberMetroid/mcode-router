@@ -552,7 +552,7 @@
           </div>
         </div>
 
-        <div class="terminal" role="region" aria-label="OODA stage pipeline and routing resolution">
+        <div class="terminal" role="region" aria-label="worker stage pipeline and routing resolution">
           <div class="term-bar">
             <span class="term-ws">[OODA PIPELINE]</span>
             <span>observe &rarr; orient &rarr; decide &rarr; act &bull; automatic lane resolution</span>
@@ -848,7 +848,7 @@ lane resolution  : quota state + capability regime + UTC off-peak tariff
         </div>
         <p class="sec-sub">
           <code>mcode-router</code> ships a Model Context Protocol server inside the same static binary.
-          MiniMax Code launches it over stdio, and the model calls the OODA stages directly &mdash; no shell
+          MiniMax Code launches it over stdio, and the model calls the worker stage tools directly &mdash; no shell
           round-trip, no plugin bridge, no extra process to babysit. Each tool maps to the matching CLI verb, so
           lane, model, effort, complexity and timeout overrides all apply.
         </p>
@@ -1000,7 +1000,7 @@ cd mcode-router &amp;&amp; ./install.sh
 
 # restart MiniMax Code so the MCP server, hooks, skills &amp; profiles load
 mcode-router --version   # print binary version
-mcode-router --status    # OODA stage matrix, fleet tiers, resets &amp; skills
+mcode-router --status    # worker stage matrix, fleet tiers, resets &amp; skills
 mcode-router --usage     # per-lane 5h/24h/7d/30d windows &amp; UTC tariffs
 mcode-router --set-stage act=grok --effort xhigh
 mcode-router --set-stage preset=deep   # or --reset-stages

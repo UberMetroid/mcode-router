@@ -156,6 +156,7 @@ effort selection"), and the dispatch reports `effort=default`.
 |---|---|
 | OBSERVE: read-only recon | `ooda_recon` |
 | ORIENT: read-only root cause and plan | `ooda_orient` |
+| DECIDE: scope, execution mode, build/test gate | orchestrator, no tool |
 | ACT: scoped coding task | `ooda_task` |
 | VERIFY: off-family diff review | `ooda_review` |
 | Fleet status, stage matrix, models | `ooda_status` |

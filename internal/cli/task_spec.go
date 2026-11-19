@@ -52,7 +52,7 @@ func cliResolveStage(stage string, opts CLIOpts, cwd string, q *fleet.QuotaState
 }
 
 func printStageMatrix(w io.Writer, cwd string, opts CLIOpts, q *fleet.QuotaState) {
-	fmt.Fprintln(w, "\nOODA Stage Routing Matrix (precedence: CLI > --local > --profile > global > auto):")
+	fmt.Fprintln(w, "\nWorker Stage Routing Matrix (precedence: CLI > --local > --profile > global > auto):")
 	fmt.Fprintf(w, "%-9s %-14s %-40s %s\n", "STAGE", "MODE", "ROUTE", "ROLE")
 	fmt.Fprintln(w, strings.Repeat("-", 100))
 	roles := map[string]string{

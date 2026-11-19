@@ -9,7 +9,7 @@ import (
 	"github.com/UberMetroid/mcode-router/internal/fleet"
 )
 
-// StageSpec describes the effective route and source resolved for one OODA stage.
+// StageSpec describes the effective route and source resolved for one worker stage.
 type StageSpec struct {
 	Stage, Source, Lane, Primary, Model, Effort string
 	ExpiresAt                                   *string

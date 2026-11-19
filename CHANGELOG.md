@@ -21,6 +21,28 @@ All notable changes to this project are documented here. The format follows
   decide, act — with a card for Decide, the orchestrator's own phase, and the off-family
   review folded into Act as the gate it is.
 
+## [Unreleased]
+
+### Changed
+
+- **The stage pins are no longer called "OODA stages".** The router has four worker
+  stages — `observe`, `orient`, `act`, `verify` — and four OODA *phases* — Observe,
+  Orient, Decide, Act. Calling the pins "OODA stages" is what let the stage list read
+  as a phase list, so the wording is now "worker stage" everywhere it appeared:
+  - the status header becomes **Worker Stage Routing Matrix**, the stage selector
+    becomes **Worker Stage Matrix**, and the `--select` help, the `ooda_set_stage` MCP
+    description, the plugin manifest, the MCP server description and the `lane` and
+    `mcode-router` skills all say "worker stage"
+  - the `ooda-auto` agent profile no longer calls a four-step list "the 4-phase OODA
+    loop": it now runs observe → orient → decide → act, with the review as the gate on
+    act
+  - the `mcode-router` skill's tool reference gains a DECIDE row, so the phase and
+    its four phases line up
+
+  The context hook that injects the matrix now matches `/Stage Routing Matrix/,$p`
+  instead of the full header, so it keeps working against both the old and the new
+  binary. **Reinstall after upgrading** so the installed hook file is rewritten.
+
 ## [1.0.19] — 2026-11-18
 
 ### Changed

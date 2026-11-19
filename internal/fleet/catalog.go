@@ -144,7 +144,7 @@ type ProviderConfig struct {
 	HealthEWMA       *float64 `json:"health_ewma,omitempty"`
 }
 
-// StageRoute pins or defaults one OODA stage (observe, orient, act, verify).
+// StageRoute pins or defaults one worker stage (observe, orient, act, verify).
 type StageRoute struct {
 	Lane      string  `json:"lane"`
 	Model     *string `json:"model,omitempty"`

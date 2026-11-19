@@ -4,7 +4,7 @@
     "mcode-router": {
       "type": "stdio",
       "command": "mcode-router-mcp",
-      "description": "mcode-router OODA stages, fleet routing and stage pinning",
+      "description": "mcode-router worker stages, fleet routing and stage pinning",
       "timeout": 3600000
     }
   }

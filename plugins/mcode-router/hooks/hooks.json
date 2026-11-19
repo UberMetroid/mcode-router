@@ -19,7 +19,7 @@
           {
             "type": "command",
             "name": "OODA routing state",
-            "command": "mcode-router --status 2>/dev/null | sed -n '/OODA Stage Routing Matrix/,$p'",
+            "command": "mcode-router --status 2>/dev/null | sed -n '/Stage Routing Matrix/,$p'",
             "timeout": 8
           }
         ]

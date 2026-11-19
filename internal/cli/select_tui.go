@@ -194,7 +194,7 @@ func openTUIInput() (*os.File, func(), error) {
 	return tty, restore, nil
 }
 
-// RunSelectTUI runs the arrow-key OODA stage/lane/model selector interactively.
+// RunSelectTUI runs the arrow-key worker stage/lane/model selector interactively.
 func RunSelectTUI(opts CLIOpts, in io.Reader, outW, errW io.Writer) int {
 	if outW == nil {
 		outW = os.Stdout
@@ -232,7 +232,7 @@ func RunSelectTUI(opts CLIOpts, in io.Reader, outW, errW io.Writer) int {
 			hint += "  " + col + status + "\033[0m"
 			status = ""
 		}
-		idx, act := tuiPick(in, outW, "OODA Stage Matrix", hint, tuiStageRows(cwd, local, q))
+		idx, act := tuiPick(in, outW, "Worker Stage Matrix", hint, tuiStageRows(cwd, local, q))
 		if act == "tab" {
 			local = !local
 			continue
