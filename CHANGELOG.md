@@ -17,7 +17,9 @@ All notable changes to this project are documented here. The format follows
   pipeline block lists the phases in order — observe, orient, decide, act — with `verify`
   shown as the gate inside act rather than a fifth phase after it. The routing card is
   renamed **Lane Priority by Stage** and says outright that its chains are lane orders, not
-  the phase order.
+  the phase order. The pipeline cards are now the four phases in order — observe, orient,
+  decide, act — with a card for Decide, the orchestrator's own phase, and the off-family
+  review folded into Act as the gate it is.
 
 ## [1.0.19] — 2026-11-18
 

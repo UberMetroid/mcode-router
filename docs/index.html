@@ -510,7 +510,7 @@
         <p class="sec-sub">
           Every stage is a separate, quota-aware call with its own lane, model and effort resolution. The
           orchestrator stays thin: it owns the plan and the final call while the workers do the reading, the
-          writing and the grading.
+          writing and the grading. Each card below is one phase, in order.
         </p>
 
         <div class="grid-2" style="margin-bottom: 18px;">
@@ -531,20 +531,23 @@
             </p>
           </div>
           <div class="card">
+            <span class="badge b-violet">Decide</span>
+            <h3>Orchestrator &mdash; Scope, Mode &amp; Gate</h3>
+            <p>
+              No worker lane and no model call: the orchestrator locks the files in scope, the execution
+              mode (sequential or parallel worktrees) and the build/test gate before a single edit is made.
+              It keeps the plan and the final call, which is how the orchestrator stays thin.
+            </p>
+          </div>
+          <div class="card">
             <span class="badge b-green">Act</span>
             <h3><code>ooda_task</code> &mdash; Scoped Implementation</h3>
             <p>
               Executes a scoped coding task in the working directory or in an isolated
               <code>git worktree</code> gated by atomic <code>flock</code> leases, so parallel builds never
-              collide.
-            </p>
-          </div>
-          <div class="card">
-            <span class="badge b-violet">Verify</span>
-            <h3><code>ooda_review</code> &mdash; Off-Family Diff Gate</h3>
-            <p>
-              Reviews the working-tree diff with an independent model family. The authoring family is excluded
-              automatically and the gate fails closed on any unclear verdict.
+              collide. Act is gated by <code>ooda_review</code>: the off-family diff review that OODA
+              keeps inside Act, promoted to a stage of its own so it can be pinned, cached and rotated
+              independently.
             </p>
           </div>
         </div>
