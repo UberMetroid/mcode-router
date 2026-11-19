@@ -4,6 +4,31 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **The file length cap is back at 256 lines.** Every `.go` source and test file
+  is now inside the 256-line house law again, and `make line-cap` enforces it.
+  The cap was raised to 320 in v1.0.14 because every affected package sat at
+  the directory cap, so an oversized file could not be split; with density now
+  counting modules, the files split instead:
+  - `fleet`: `catalog.go` into `catalog.go` + `providers.go` + `safe_text.go`,
+    `leases.go` into `leases.go` + `muse_probe.go`, `paths.go` into `paths.go` +
+    `state_io.go`
+  - `verify`: `gather_diff.go` into `gather_diff.go` + `git_state.go`,
+    `snapshot.go` into `snapshot.go` + `fingerprint.go`, `hygiene.go` into
+    `hygiene.go` + `repo_hygiene.go`
+  - `worktree`: `stages.go` into `stages.go` + `stage_pins.go`
+  - `dispatch`: `telemetry.go` into `telemetry.go` + `hud.go`
+  - `cli`: `run_cli.go` into `run_cli.go` + `run_dispatch.go`, `report_fleet.go`
+    into `report_fleet.go` + `report_usage.go`, `cli_test.go` into `cli_test.go` +
+    `cli_review_test.go`
+- **Directory density counts modules, not files.** The limit moves from 8 to 16
+  — the next rung of the power-of-two ladder — and a `*_test.go` file no longer
+  consumes a module slot. Test files are companions to a module, and counting
+  them is what left packages unable to split.
+
 ## [1.0.18] — 2026-11-18
 
 ### Changed

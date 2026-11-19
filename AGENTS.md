@@ -15,15 +15,15 @@ Every `[GATE]` rule below is machine-enforced by `Makefile` targets and
 - `[POLICY]` Zero third-party modules or vendored dependencies anywhere in
   `cmd/`, `internal/`, `plugins/mcode-router/`, or `qa/`.
 
-## 2. Power-of-2 Code Shape (`1 / 2 / 4 / 8 / 16 / 32 / 64 / 128 / 256 / 320`)
+## 2. Power-of-2 Code Shape (`1 / 2 / 4 / 8 / 16 / 32 / 64 / 128 / 256`)
 
-- `[GATE]` **16–320 Lines & 128 Cols (`make line-cap`):** Every `.go` source and
-  test file must be **16 to 320 lines** inclusive, with every line at most
-  **128 display columns** (tabs expanded to 4 spaces). The cap was raised from
-  256 in v1.0.14 so that trust-boundary guards could be added to the files that
-  already hold the relevant logic, instead of being spread across new files or
-  compacted into unreadable shapes.
-- `[GATE]` **Directory Density <= 8 (`make density`):** At most **8 modules per
+- `[GATE]` **16–256 Lines & 128 Cols (`make line-cap`):** Every `.go` source and
+  test file must be **16 to 256 lines** inclusive, with every line at most
+  **128 display columns** (tabs expanded to 4 spaces). The cap was raised to 320
+  in v1.0.14 because every affected package sat at the directory cap, so no file
+  could be split; it is back at 256 now that density counts modules and a package
+  can split an oversized file into its own.
+- `[GATE]` **Directory Density <= 16 (`make density`):** At most **16 modules per
   directory** under `cmd/`, `internal/`, `plugins/mcode-router/`, and `qa/`
   (excluding `.git`, `.worktrees`, `__pycache__`, and `*_test.go`). A test file
   is a companion to a module, not a module: counting it here let test files eat

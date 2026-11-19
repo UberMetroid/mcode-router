@@ -61,15 +61,15 @@ func TestPortableAndLineCapGates(t *testing.T) {
 
 func TestDensityAndVocabGates(t *testing.T) {
 	root := t.TempDir()
-	for i := 0; i < 8; i++ {
+	for i := 0; i < 16; i++ {
 		writeGateFile(t, filepath.Join(root, "internal", "ok", fmt.Sprintf("f%d.go", i)), padGoLines("ok", 16))
 	}
 	if v := checkDensity(root); len(v) != 0 {
-		t.Fatalf("8 files should pass density: %v", v)
+		t.Fatalf("16 modules should pass density: %v", v)
 	}
-	writeGateFile(t, filepath.Join(root, "internal", "ok", "f8.go"), padGoLines("ok", 16))
+	writeGateFile(t, filepath.Join(root, "internal", "ok", "f16.go"), padGoLines("ok", 16))
 	if v := checkDensity(root); len(v) == 0 {
-		t.Fatalf("9 files must fail density")
+		t.Fatalf("17 modules must fail density")
 	}
 
 	vRoot := t.TempDir()
