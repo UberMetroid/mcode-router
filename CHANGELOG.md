@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **The mcode native review now returns a verdict the router can read.** The native
+  review path asked the CLI for plain text and then hunted for the router's
+  `VERDICT: ACCEPT|REJECT` line in it. The native reviewer does not emit that line —
+  it returns its own structured result — so the verdict came back `UNKNOWN` and the
+  review rotated off-family to another lane. Every native review therefore ran on the
+  pinned lane and was thrown away, and a `verify` pinned to `mcode` never actually
+  reviewed anything on `mcode`. The native path now asks for JSON and maps the
+  reviewer's own verdict: `pass` accepts, `needs_changes` rejects, and the findings
+  come back as `[P*]` lines with their path and line number. A `pass` that still
+  carries findings is a contradiction and is refused rather than accepted.
+
 ## [1.0.16] — 2026-11-18
 
 ### Added

@@ -117,7 +117,7 @@ func buildMcodeCmd(req CmdReq, model, promptFile string) (BuiltCmd, error) {
 		}
 	}
 	if req.ReviewMode == "native" {
-		argv = append(argv, "--permission", "smart", "--max-steps", "15", "--output-format", "text")
+		argv = append(argv, "--permission", "smart", "--max-steps", "15", "--output-format", "json")
 		if req.Prompt != "" {
 			argv = append(argv, "--append-system-prompt-file", promptFile)
 		}

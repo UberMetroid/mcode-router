@@ -1,6 +1,7 @@
 package verify
 
 import (
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -75,6 +76,42 @@ func ParseReviewVerdict(text string) string {
 		}
 	}
 	return "UNKNOWN"
+}
+
+// ParseNativeVerdict maps a native mcode review envelope onto the router's
+// verdict contract: "pass" accepts, "needs_changes" rejects, and the findings
+// come back as [P*] lines. ok=false leaves a text review on its existing path.
+// A "pass" that still carries findings is a contradiction and is refused.
+func ParseNativeVerdict(text string) (verdict, report string, ok bool) {
+	env := fleet.NativeReviewEnvelope{}
+	if json.Unmarshal([]byte(text), &env) != nil || env.Output.Type != "review.result" {
+		return "", "", false
+	}
+	var b strings.Builder
+	if s := strings.TrimSpace(env.Output.Summary); s != "" {
+		b.WriteString(s + "\n")
+	}
+	for _, f := range env.Output.Findings {
+		loc := f.Path
+		if f.StartLine > 0 {
+			loc = fmt.Sprintf("%s:%d", f.Path, f.StartLine)
+		}
+		pri := strings.TrimSpace(f.Priority)
+		if pri == "" {
+			pri = "P3"
+		}
+		title := strings.TrimSpace(findingTagRe.ReplaceAllString(f.Title, ""))
+		fmt.Fprintf(&b, "[%s] %s: %s\n", pri, loc, title)
+	}
+	switch strings.ToLower(strings.TrimSpace(env.Output.Verdict)) {
+	case "pass":
+		if len(env.Output.Findings) == 0 {
+			return "ACCEPT", b.String(), true
+		}
+	case "needs_changes":
+		return "REJECT", b.String(), true
+	}
+	return "", "", false
 }
 
 // sanitizeReviewText neutralises the verdict contract, the finding tags and

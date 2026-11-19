@@ -75,6 +75,21 @@ var (
 	}
 )
 
+// NativeReviewEnvelope is the result envelope the mcode native review returns:
+// a review.result object with a verdict, a summary, and findings that carry a
+// P0-P3 priority.
+type NativeReviewEnvelope struct {
+	Output struct {
+		Type     string `json:"type"`
+		Verdict  string `json:"verdict"`
+		Summary  string `json:"summary"`
+		Findings []struct {
+			Priority, Path, Title string
+			StartLine             int
+		} `json:"findings"`
+	} `json:"output"`
+}
+
 // NormalizeLane resolves user aliases to a canonical provider name.
 func NormalizeLane(raw string, allowAuto bool) (string, error) {
 	key := strings.ToLower(strings.TrimSpace(raw))
