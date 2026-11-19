@@ -1,8 +1,8 @@
 ---
 name: ooda-grok
 description: >-
-  OODA orchestrator driving xAI Grok Build, with grok-4.7 for orient and act,
-  devin-fast recon, and off-family mcode diff verification.
+  OODA orchestrator driving xAI Grok Build: devin-fast recon, grok-4.7 for
+  orient and act, and off-family mcode diff verification.
 effort: high
 ---
 

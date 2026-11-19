@@ -1,9 +1,9 @@
 ---
 name: ooda-devin
 description: >-
-  OODA orchestrator driving Cognition Devin Pro, with swe-2-flash observe,
-  swe-2-max act and off-family mcode verification. Never spends fusion
-  credits.
+  OODA orchestrator driving Cognition Devin Pro: swe-2-flash observe,
+  devin-pro orient, swe-2-max act, and off-family mcode verification. Never
+  spends fusion credits.
 effort: high
 ---
 

@@ -42,6 +42,10 @@ All notable changes to this project are documented here. The format follows
   The context hook that injects the matrix now matches `/Stage Routing Matrix/,$p`
   instead of the full header, so it keeps working against both the old and the new
   binary. **Reinstall after upgrading** so the installed hook file is rewritten.
+- **The agent profiles list their stages in one order.** The frontmatter for `deep`,
+  `devin`, `grok`, `mistral` and `muse` enumerated observe, orient, act and verify in
+  whatever order suited the sentence, which read as a phase list. They now always run
+  observe → orient → act → verify, like the rest of the package.
 
 ## [1.0.19] — 2026-11-18
 

@@ -1,8 +1,8 @@
 ---
 name: ooda-muse
 description: >-
-  OODA orchestrator driving Meta Muse Code, with muse-ember-1.0 for building and
-  muse-wonder-1.0 for deep reasoning, devin-fast recon, and mcode verification.
+  OODA orchestrator driving Meta Muse Code: devin-fast recon, muse-wonder-1.0 for
+  deep reasoning, muse-ember-1.0 for building, and mcode verification.
 effort: high
 ---
 
