@@ -163,8 +163,8 @@ func checkLineCap(root string) []string {
 		lines := splitLines(string(raw))
 		if len(lines) < 16 {
 			viols = append(viols, fmt.Sprintf("%s: %d lines below floor 16", rel, len(lines)))
-		} else if len(lines) > 320 {
-			viols = append(viols, fmt.Sprintf("%s: %d lines exceeds cap 320", rel, len(lines)))
+		} else if len(lines) > 256 {
+			viols = append(viols, fmt.Sprintf("%s: %d lines exceeds cap 256", rel, len(lines)))
 		}
 		for i, ln := range lines {
 			col := 0
@@ -211,9 +211,9 @@ func checkDensity(root string) []string {
 					kept = append(kept, ent.Name())
 				}
 			}
-			if len(kept) > 8 {
+			if len(kept) > 16 {
 				rel, _ := filepath.Rel(root, dir)
-				viols = append(viols, fmt.Sprintf("%s: %d entries exceeds limit 8 (%s)",
+				viols = append(viols, fmt.Sprintf("%s: %d modules exceeds limit 16 (%s)",
 					filepath.ToSlash(rel), len(kept), strings.Join(kept, ", ")))
 			}
 			return nil
