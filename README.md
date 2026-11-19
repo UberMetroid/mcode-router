@@ -3,10 +3,10 @@
 **Static Go OODA multi-agent router, quota-aware scheduler, and zero-trust cross-model verifier for MiniMax Code.**
 
 `UberMetroid/mcode-router` is a zero-dependency Go 1.22+ (`CGO_ENABLED=0`, zero external
-`require`s) engine that plugs into MiniMax Code through an MCP server. It splits a request
-into **observe → orient → act → verify**, picks the **lane, model and effort** for each stage
-from live quota windows and task capability, dispatches work across the local agent fleet,
-and verifies every diff with an **off-family reviewer**.
+`require`s) engine that plugs into MiniMax Code through an MCP server. It runs the **OODA**
+loop — **Observe → Orient → Decide → Act** — picks the **lane, model and effort** for each
+worker stage from live quota windows and task capability, dispatches work across the local
+agent fleet, and verifies every diff with an **off-family reviewer**.
 
 Nothing asks you to pick a model. The `SessionStart` and `UserPromptSubmit` context hooks
 inject the live fleet state and the stage routing matrix into every session, so routing is
@@ -37,7 +37,11 @@ The installer wires five things into MiniMax Code:
 | MCP server | `agent-ooda` → `mcode-router` entry in `~/.minimax/mcp.json` |
 | Context hooks | `SessionStart` + `UserPromptSubmit` in `~/.minimax/hooks.json` |
 
-## The Four OODA Stages
+## The OODA Pipeline
+
+OODA is **Observe → Orient → Decide → Act**. **Decide** is the orchestrator's own phase: it
+locks the files in scope, the execution mode and the build/test gate, so it never spends a
+worker lane. The router exposes the worker-facing work as four stage pins:
 
 | Stage | Role | Default lane |
 |---|---|---|
@@ -45,6 +49,9 @@ The installer wires five things into MiniMax Code:
 | `orient` | Root-cause analysis and a concrete plan | `auto` |
 | `act` | Coding and worktree execution | `auto` |
 | `verify` | Cross-model diff review, off-family | `auto` |
+
+`verify` is the off-family review that OODA keeps inside Act, promoted to a stage of its own
+so it can be pinned, cached and rotated on its own.
 
 Every stage resolves through **CLI flag → repo-local pin → profile → global pin →
 automatic**. Soft-pin failover moves down the lane priority chain on a `429` or cooldown
