@@ -13,7 +13,9 @@ All notable changes to this project are documented here. The format follows
   orchestrator's own phase, so it never spends a worker lane. The four worker-facing
   pins (`observe`, `orient`, `act`, `verify`) are described as stage pins, and `verify`
   is named as the off-family review that OODA keeps inside Act, promoted to a stage of
-  its own. The page's pipeline strip and its version strings move to v1.0.19.
+  its own. The page's pipeline strip and its version strings move to v1.0.19, and the
+  pipeline block lists the phases in order — observe, orient, decide, act — with `verify`
+  shown as the gate inside act rather than a fifth phase after it.
 
 ## [1.0.19] — 2026-11-18
 

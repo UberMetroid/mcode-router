@@ -552,13 +552,13 @@
         <div class="terminal" role="region" aria-label="OODA stage pipeline and routing resolution">
           <div class="term-bar">
             <span class="term-ws">[OODA PIPELINE]</span>
-            <span>per-stage routing &bull; automatic lane resolution</span>
+            <span>observe &rarr; orient &rarr; decide &rarr; act &bull; automatic lane resolution</span>
           </div>
           <pre class="codeblock"><code>OBSERVE   ooda_recon     read-only recon: structure, build &amp; test cmds, symbols
 ORIENT    ooda_orient    root cause, invariants, blast radius, ordered plan
-ACT       ooda_task      scoped coding task in the working dir or a worktree
-VERIFY    ooda_review    independent off-family review of the working-tree diff
 DECIDE    orchestrator   you keep the plan and the final call
+ACT       ooda_task      scoped coding task in the working dir or a worktree
+  |_ VERIFY  ooda_review  independent off-family review of the working-tree diff
 
 stage resolution : CLI flag &gt; --local &gt; --profile &gt; global pin &gt; auto
 lane resolution  : quota state + capability regime + UTC off-peak tariff
