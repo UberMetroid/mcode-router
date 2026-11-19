@@ -789,16 +789,19 @@ lane resolution  : quota state + capability regime + UTC off-peak tariff
 
         <div class="grid-2">
           <div class="card">
-            <h3>Stage Routing Priority</h3>
+            <h3>Lane Priority by Stage</h3>
             <p>
-              <strong>Observe (recon):</strong> <code>devin-fast &rarr; mcode &rarr; devin-pro &rarr; muse</code><br>
-              <strong>Act (default):</strong> Expiring clocks &rarr; <code>0.5x</code> off-peak &rarr; short
+              Each stage has its own lane order; the chains below are lane priorities, not the
+              phase order. The phases run observe &rarr; orient &rarr; decide &rarr; act, and
+              <code>verify</code> gates act.<br>
+              <strong>observe (recon):</strong> <code>devin-fast &rarr; mcode &rarr; devin-pro &rarr; muse</code><br>
+              <strong>act (quota-driven):</strong> Expiring clocks &rarr; <code>0.5x</code> off-peak &rarr; short
               windows &rarr; free lanes<br>
-              <strong>Parallel stripe:</strong>
+              <strong>parallel stripe:</strong>
               <code>muse &rarr; grok &rarr; mistral &rarr; devin-pro &rarr; devin-fast &rarr; mcode</code><br>
-              <strong>Fallback chain:</strong>
+              <strong>fallback chain:</strong>
               <code>muse &rarr; grok &rarr; mistral &rarr; devin-fast &rarr; devin-pro &rarr; mcode</code><br>
-              <strong>Verify:</strong>
+              <strong>verify (review):</strong>
               <code>mcode &rarr; devin-fast &rarr; devin-pro &rarr; grok &rarr; mistral &rarr; muse</code>
             </p>
           </div>

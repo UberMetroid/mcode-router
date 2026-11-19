@@ -15,7 +15,9 @@ All notable changes to this project are documented here. The format follows
   is named as the off-family review that OODA keeps inside Act, promoted to a stage of
   its own. The page's pipeline strip and its version strings move to v1.0.19, and the
   pipeline block lists the phases in order — observe, orient, decide, act — with `verify`
-  shown as the gate inside act rather than a fifth phase after it.
+  shown as the gate inside act rather than a fifth phase after it. The routing card is
+  renamed **Lane Priority by Stage** and says outright that its chains are lane orders, not
+  the phase order.
 
 ## [1.0.19] — 2026-11-18
 
