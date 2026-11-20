@@ -4,6 +4,31 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **The changelog no longer strands a release's prose under a stale `[Unreleased]`
+  heading.** The v1.0.20 cycle wrote two `[Unreleased]` sections into the changelog —
+  the second one for the "worker stage" wording — and the release bump renamed only
+  the first. The published v1.0.20 notes therefore read as if the stage pins were
+  still called "OODA stages", and as if the agent profiles still listed their stages
+  in sentence order, even though both shipped in v1.0.20. The two entries now sit
+  under `[1.0.20]`, where they were released.
+
+- **The release tooling renames the open `[Unreleased]` heading instead of stranding
+  it.** `make bump-version` put the new `## [X.Y.Z]` heading *above* the open
+  `[Unreleased]` heading, so the cycle's prose stayed under `[Unreleased]` while the
+  new release section sat empty beside it — and the bump still reported the release
+  as ready to tag. The bump now renames the open heading, so the prose lands in the
+  release it was written for.
+
+- **`make release-check` now fails on a stranded or duplicated `[Unreleased]`
+  heading.** The duplicate above was invisible to the release check, which only
+  compared the CLI version, the plugin manifest and the changelog link. It now
+  requires at most one `[Unreleased]` heading, and requires it to be the first
+  section in the file, so the next one is caught before it ships.
+
 ## [1.0.20] — 2026-11-18
 
 ### Changed
@@ -20,11 +45,6 @@ All notable changes to this project are documented here. The format follows
   the phase order. The pipeline cards are now the four phases in order — observe, orient,
   decide, act — with a card for Decide, the orchestrator's own phase, and the off-family
   review folded into Act as the gate it is.
-
-## [Unreleased]
-
-### Changed
-
 - **The stage pins are no longer called "OODA stages".** The router has four worker
   stages — `observe`, `orient`, `act`, `verify` — and four OODA *phases* — Observe,
   Orient, Decide, Act. Calling the pins "OODA stages" is what let the stage list read

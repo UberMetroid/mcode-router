@@ -16,6 +16,13 @@ type releaseEdit struct {
 
 // applyVersion rewrites every release file to carry the given version.
 func applyVersion(root, version, date string) error {
+	changelog, err := readText(filepath.Join(root, changelogPath))
+	if err != nil {
+		return err
+	}
+	if err := checkUnreleased(changelog); err != nil {
+		return err
+	}
 	edits := []releaseEdit{
 		{catalogPath, func(c string) (string, error) { return bumpCatalog(c, version) }},
 		{manifestPath, func(c string) (string, error) { return bumpManifest(c, version) }},
@@ -126,6 +133,10 @@ func runCheck(outW, errW io.Writer) int {
 	}
 	changelog, err := readText(filepath.Join(root, changelogPath))
 	if err != nil {
+		fmt.Fprintf(errW, "error: %v\n", err)
+		return 1
+	}
+	if err := checkUnreleased(changelog); err != nil {
 		fmt.Fprintf(errW, "error: %v\n", err)
 		return 1
 	}

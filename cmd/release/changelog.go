@@ -45,14 +45,22 @@ func hasChangelogLink(content, version string) bool {
 	return false
 }
 
-// insertChangelogSection puts a new release heading above the newest one.
+// insertChangelogSection renames the open [Unreleased] heading into the new
+// release, so the cycle's prose lands in the release it was written for, and
+// falls back to putting a new release heading above the newest one when no
+// open heading exists.
 func insertChangelogSection(content, version, date string) string {
-	block := fmt.Sprintf("## [%s] — %s\n\n", version, date)
-	loc := changelogSectionRe.FindStringIndex(content)
-	if loc == nil {
+	heading := fmt.Sprintf("## [%s] — %s", version, date)
+	open := unreleasedSectionRe.FindStringIndex(content)
+	released := changelogSectionRe.FindStringIndex(content)
+	if open != nil && (released == nil || open[0] < released[0]) {
+		return content[:open[0]] + heading + content[open[1]:]
+	}
+	block := heading + "\n\n"
+	if released == nil {
 		return appendBlock(content, block)
 	}
-	return content[:loc[0]] + block + content[loc[0]:]
+	return content[:released[0]] + block + content[released[0]:]
 }
 
 // insertChangelogLink puts a new release link above the older ones.
